@@ -1,0 +1,126 @@
+@compiler >= 7
+include "List.aes"
+include "Pair.aes"
+include "Option.aes"
+include "./libs/ListUtil.aes"
+include "./interfaces/DAOInterface.aes"
+
+
+contract DAO :  DAOInterface = 
+
+    record proposal = {
+        title: string,
+        description: string,
+        creator: address,
+        proposal_type: int,
+        recipients: map(address, int),
+        start_date: int,
+        stop_date: int,
+        voters: map(address, bool),
+        executed: bool
+        } 
+
+    record state = {
+        owner : address,
+        title : string,
+        description : string,
+        members : list(address),
+        proposals: map(int, proposal),
+        member_fund: map(address, int),
+        contributor_fund: map(address, int)
+        }
+
+    entrypoint init(dao): state =
+        dao
+
+    entrypoint get(): state =
+        state
+
+    stateful entrypoint create_proposal(title: string, description: string, proposal_type: int, recipients: map(address, int), start_date: int, stop_date: int) = 
+        let new_proposal = {
+            title= title,
+            description= description,
+            creator= Call.caller,
+            proposal_type= proposal_type,
+            recipients= recipients,
+            start_date= start_date,
+            stop_date= stop_date,
+            voters= {},
+            executed= false
+            }
+        
+        let size = Map.size(state.proposals)  
+
+        put(state{proposals[size] = new_proposal})
+
+    stateful entrypoint vote(index: int, vote_value: bool) =
+        let is_member = List.contains(Call.caller, state.members)
+        require(is_member, "!member")
+
+        let voted_proposal = Map.member(index, state.proposals)
+        require(voted_proposal, "!proposal")
+
+        put(state {proposals[index].voters[Call.caller] = vote_value})
+
+    entrypoint get_proposals(): list(int * proposal) = 
+        Map.to_list(state.proposals)
+
+    payable stateful entrypoint fund() =
+        // check contributor or member
+        let is_member = List.contains(Call.caller, state.members)
+        if (is_member)
+            put(state{ member_fund[Call.caller] = Call.value})
+        else 
+            put(state{ contributor_fund[Call.caller] = Call.value})    
+
+    stateful entrypoint execute_proposal(index: int): int =
+        let is_exist_proposal = Map.member(index, state.proposals)
+        require(is_exist_proposal, "!proposal")
+
+        let voted_proposal = state.proposals[index]
+        let proposal_voters = voted_proposal.voters
+        require(Map.size(proposal_voters) > 0, "!size")
+
+        let proposal_voters_list = Map.to_list(proposal_voters)
+
+        //proposal_voters_list
+        let voted_list = List.filter((a: (address * bool)) => Pair.snd(a) == true, proposal_voters_list)
+        require(List.length(state.members) == List.length(voted_list), "!enough_vote")
+
+        if (voted_proposal.proposal_type != 1)
+            require(Chain.timestamp >= voted_proposal.start_date, "start_date>block_timestamp")
+
+        let recipients_and_tokens_list = Map.to_list(voted_proposal.recipients)
+        require(ListUtil.validate_expenses(recipients_and_tokens_list), "!enough_balance")
+        put(state {proposals[index].executed = true})
+        let sent_tokens = spend_to_many'(recipients_and_tokens_list, 0, Contract.balance)
+        sent_tokens
+
+    entrypoint get_contract_balance(): int =
+        Contract.balance
+
+    stateful entrypoint add_memmber(new_member: address): bool =
+        let is_member = List.contains(new_member, state.members)
+        require(!is_member, "Existed")
+        put(state {members = new_member::state.members})
+        true 
+
+    stateful entrypoint remove_member(member: address): bool =
+        let is_member = List.contains(member, state.members)
+        require(is_member, "!Existed")
+        put(state {members = List.filter((m) => m != member, state.members)})
+        true
+
+    // traverse through list of maps
+    stateful function spend_to_many'(list, total_tokens_spend, amount_left) : int = 
+        switch(list)
+            [] => total_tokens_spend
+            (address, tokens) :: l' =>
+                require(amount_left >= tokens, "!enough_tokens") // if for some reason amount of tokens is not enough, the recursion will be aborted
+                Chain.spend(address,tokens) 
+                spend_to_many'(l', total_tokens_spend + tokens, amount_left - tokens)
+
+
+
+
+

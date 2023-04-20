@@ -1,0 +1,12 @@
+@compiler >= 7
+
+contract interface DAOInterface = 
+    entrypoint init : (address, string, string, list(address), map(int, 'a), map(address, int), map(address, int)) => void
+    entrypoint get : () => unit
+    stateful entrypoint create_proposal : () => unit
+    stateful entrypoint vote : () => unit
+    entrypoint get_proposals : () => list(address * 'a)
+    payable stateful entrypoint fund : () => unit
+    stateful entrypoint execute_proposal: () => int
+    stateful entrypoint add_memmber: (address) => bool
+    stateful entrypoint remove_member: (address) => bool

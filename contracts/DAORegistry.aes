@@ -1,0 +1,70 @@
+
+@compiler >= 7
+include "String.aes"
+include "List.aes"
+include "./interfaces/DAOInterface.aes"
+include "DAO.aes"
+include "Pair.aes"
+
+main contract DAORegistry = 
+    record dao = {
+        owner: address,
+        title: string,
+        description: string
+        }
+
+    record state = {
+        daos: map(address, dao),
+        sub_daos: map(address, list(address))
+        }
+
+    entrypoint init() = {
+        daos= {},
+        sub_daos= {}
+        }
+
+    stateful entrypoint create_dao(title: string, description: string, members: list(address), parent_dao: option(address)) =
+        let new_dao = {
+            owner= Call.caller,
+            title= title,
+            description= description,
+            members= members,
+            proposals= {},
+            member_fund= {},
+            contributor_fund= {}
+            }
+        if (Map.size(state.daos) > 0) 
+            switch(Chain.clone(ref=Address.to_contract(Pair.fst(List.get(0, Map.to_list(state.daos)))), protected=true, new_dao))
+                None => abort("!DAO")
+                Some(created_dao) =>
+                    put(state { daos[created_dao.address] = { owner= Call.caller, title= title, description= description  } })
+
+                    if (Option.is_some(parent_dao))
+                        let parent_dao_address = Option.force(parent_dao)
+                        put(state { sub_daos[parent_dao_address] = created_dao.address::state.sub_daos[parent_dao_address] })
+                   
+        else             
+            let created_dao = Chain.create(new_dao): DAO
+
+            put(state { daos[created_dao.address] = { owner= Call.caller, title= title, description= description  } })
+
+            if (Option.is_some(parent_dao))
+                let parent_dao_address = Option.force(parent_dao)
+                put(state { sub_daos[parent_dao_address] = created_dao.address::state.sub_daos[parent_dao_address] })
+        
+
+    entrypoint get_daos(): list(address * dao) =
+        Map.to_list(state.daos)
+    
+    entrypoint get_sub_daos_of(parent_dao: address): list(address * dao) = 
+
+        let sub_daos_list = state.sub_daos[parent_dao]
+
+        if (List.length(sub_daos_list) > 0)
+            let sub_daos = List.filter((d: (address * dao)) => List.contains(Pair.fst(d), sub_daos_list), Map.to_list(state.daos))
+            sub_daos
+        else
+            []
+
+
+            

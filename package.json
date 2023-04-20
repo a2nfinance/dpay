@@ -1,0 +1,70 @@
+{
+  "name": "aeproject-project",
+  "version": "1.0.0",
+  "description": "This is the default package.json generated for your project",
+  "scripts": {
+    "test-dao-registry": "mocha ./test/**/daoRegistryTest.js --timeout 0 --exit",
+    "test-dao": "mocha ./test/**/daoTest.js --timeout 0 --exit",
+    "dev": "next dev -p 5000",
+    "build": "next build",
+    "start": "next start -p 5000"
+  },
+  "dependencies": {
+    "@aeternity/aepp-sdk": "^13.0.0",
+    "@ant-design/icons": "^4.8.0",
+    "antd": "^5.0.0",
+    "next": "latest",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-redux": "^8.0.4",
+    "@reduxjs/toolkit": "^1.8.6"
+  },
+  "devDependencies": {
+    "@aeternity/aeproject": "^4.6.0",
+    "chai": "^4.3.7",
+    "mocha": "^9.2.2",
+    "@types/node": "^12.20.55",
+    "@types/react": "^18.0.21",
+    "@types/react-dom": "^18.0.6",
+    "ts-loader": "^9.4.1",
+    "typescript": "4.9.4",
+    "webpack-cli": "^4.10.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/a2nfinance/payroll.git"
+  },
+  "keywords": [
+    "a2n",
+    "daopay",
+    "sophia",
+    "smart",
+    "contract",
+    "aenternity"
+  ],
+  "author": "a2n.finance",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/a2nfinance/payroll/issues"
+  },
+  "homepage": "https://github.com/a2nfinance/payroll#readme",
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browser": {
+    "fs": false,
+    "path": false
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

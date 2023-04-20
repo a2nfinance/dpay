@@ -1,0 +1,26 @@
+namespace ListUtil =
+  // comparing possible expenses and given tokens
+    function validate_expenses(recipients_and_tokens: list(address * int)) : bool = 
+        sum((x) => x, pre_process_expenses(recipients_and_tokens,[])) =< Contract.balance
+
+    /* traversing through values of given list of tuples(in the other words, tokens), 
+    returns a list of integers, in order to calculate them later in sum(f,l) private function. */
+    function pre_process_expenses(recipients_and_tokens, expenses) : list(int) = 
+        switch(recipients_and_tokens)
+            [] => expenses
+            (_ , tokens) :: l' =>
+                pre_process_expenses(l', tokens :: expenses)
+    
+    // traverses through list, returns a sum of elements
+    function sum(f : 'a => int, l : list('a)) : int = 
+        foldr((x, y) => x + y, 0, map(f, l))
+
+    function foldr(f : (('a, 'b) => 'b), z: 'b, l : list('a)) : 'b =
+        switch(l)
+            [] => z
+            e :: l' => f(e, foldr(f, z, l'))
+
+    function map(f : 'a => 'b, l : list('a)) : list('b) =
+        switch(l)
+            [] => []
+            e :: l' => f(e) :: map(f, l')
