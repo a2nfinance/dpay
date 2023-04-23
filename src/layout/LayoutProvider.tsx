@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import {
     MenuFoldOutlined,
     MenuUnfoldOutlined,
@@ -6,10 +5,12 @@ import {
     UserOutlined,
     VideoCameraOutlined,
 } from '@ant-design/icons';
+import React, { useState } from "react";
 
-import { Layout, Menu, Button, theme, Input, Space } from 'antd';
+import { Button, Input, Layout, Menu, Space, theme } from 'antd';
 
 import { useRouter } from "next/router";
+import { ConnectButton } from "src/components/common/ConnectButton";
 
 const { Header, Sider, Content } = Layout;
 
@@ -83,7 +84,7 @@ export const LayoutProvider = (props: Props) => {
                             onSearch={onSearch}
                         />
 
-                        <Button type="primary">Connect Wallet</Button>
+                        <ConnectButton />
                     </Space>
                 </Header>
                 <Content

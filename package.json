@@ -12,20 +12,21 @@
   "dependencies": {
     "@aeternity/aepp-sdk": "^13.0.0",
     "@ant-design/icons": "^4.8.0",
+    "@reduxjs/toolkit": "^1.8.6",
     "antd": "^5.0.0",
+    "dotenv": "^16.0.3",
     "next": "latest",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-redux": "^8.0.4",
-    "@reduxjs/toolkit": "^1.8.6"
+    "react-redux": "^8.0.4"
   },
   "devDependencies": {
     "@aeternity/aeproject": "^4.6.0",
-    "chai": "^4.3.7",
-    "mocha": "^9.2.2",
     "@types/node": "^12.20.55",
     "@types/react": "^18.0.21",
     "@types/react-dom": "^18.0.6",
+    "chai": "^4.3.7",
+    "mocha": "^9.2.2",
     "ts-loader": "^9.4.1",
     "typescript": "4.9.4",
     "webpack-cli": "^4.10.0"
