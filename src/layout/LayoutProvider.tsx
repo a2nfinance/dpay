@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
     MenuFoldOutlined,
     MenuUnfoldOutlined,
@@ -5,11 +6,11 @@ import {
     UserOutlined,
     VideoCameraOutlined,
 } from '@ant-design/icons';
-import React, { useState } from "react";
 
-import { Button, Input, Layout, Menu, Space, theme } from 'antd';
+import { Layout, Menu, Button, theme, Input, Space } from 'antd';
 
 import { useRouter } from "next/router";
+import { useAppSelector } from "src/controller/hooks";
 import { ConnectButton } from "src/components/common/ConnectButton";
 
 const { Header, Sider, Content } = Layout;

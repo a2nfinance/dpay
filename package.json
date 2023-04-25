@@ -18,7 +18,8 @@
     "next": "latest",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-redux": "^8.0.4"
+    "react-redux": "^8.0.4",
+    "redux-persist": "^6.0.0"
   },
   "devDependencies": {
     "@aeternity/aeproject": "^4.6.0",

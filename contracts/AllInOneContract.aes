@@ -1,0 +1,218 @@
+
+@compiler >= 7
+include "String.aes"
+include "List.aes"
+include "Pair.aes"
+include "Option.aes"
+
+namespace ListUtil =
+  // comparing possible expenses and given tokens
+    function validate_expenses(recipients_and_tokens: list(address * int)) : bool = 
+        sum((x) => x, pre_process_expenses(recipients_and_tokens,[])) =< Contract.balance
+
+    /* traversing through values of given list of tuples(in the other words, tokens), 
+    returns a list of integers, in order to calculate them later in sum(f,l) private function. */
+    function pre_process_expenses(recipients_and_tokens, expenses) : list(int) = 
+        switch(recipients_and_tokens)
+            [] => expenses
+            (_ , tokens) :: l' =>
+                pre_process_expenses(l', tokens :: expenses)
+    
+    // traverses through list, returns a sum of elements
+    function sum(f : 'a => int, l : list('a)) : int = 
+        foldr((x, y) => x + y, 0, map(f, l))
+
+    function foldr(f : (('a, 'b) => 'b), z: 'b, l : list('a)) : 'b =
+        switch(l)
+            [] => z
+            e :: l' => f(e, foldr(f, z, l'))
+
+    function map(f : 'a => 'b, l : list('a)) : list('b) =
+        switch(l)
+            [] => []
+            e :: l' => f(e) :: map(f, l')
+
+contract interface DAOInterface = 
+    entrypoint init : (address, string, string, list(address), map(int, 'a), map(address, int), map(address, int)) => void
+    entrypoint get : () => unit
+    stateful entrypoint create_proposal : () => unit
+    stateful entrypoint vote : () => unit
+    entrypoint get_proposals : () => list(address * 'a)
+    payable stateful entrypoint fund : () => unit
+    stateful entrypoint execute_proposal: () => int
+    stateful entrypoint add_memmber: (address) => bool
+    stateful entrypoint remove_member: (address) => bool
+
+contract DAO :  DAOInterface = 
+
+    record proposal = {
+        title: string,
+        description: string,
+        creator: address,
+        proposal_type: int,
+        recipients: map(address, int),
+        start_date: int,
+        stop_date: int,
+        voters: map(address, bool),
+        executed: bool
+        } 
+
+    record state = {
+        owner : address,
+        title : string,
+        description : string,
+        members : list(address),
+        proposals: map(int, proposal),
+        member_fund: map(address, int),
+        contributor_fund: map(address, int)
+        }
+
+    entrypoint init(dao): state =
+        dao
+
+    entrypoint get(): state =
+        state
+
+    stateful entrypoint create_proposal(title: string, description: string, proposal_type: int, recipients: map(address, int), start_date: int, stop_date: int) = 
+        let new_proposal = {
+            title= title,
+            description= description,
+            creator= Call.caller,
+            proposal_type= proposal_type,
+            recipients= recipients,
+            start_date= start_date,
+            stop_date= stop_date,
+            voters= {},
+            executed= false
+            }
+        
+        let size = Map.size(state.proposals)  
+
+        put(state{proposals[size] = new_proposal})
+
+    stateful entrypoint vote(index: int, vote_value: bool) =
+        let is_member = List.contains(Call.caller, state.members)
+        require(is_member, "!member")
+
+        let voted_proposal = Map.member(index, state.proposals)
+        require(voted_proposal, "!proposal")
+
+        put(state {proposals[index].voters[Call.caller] = vote_value})
+
+    entrypoint get_proposals(): list(int * proposal) = 
+        Map.to_list(state.proposals)
+
+    payable stateful entrypoint fund() =
+        // check contributor or member
+        let is_member = List.contains(Call.caller, state.members)
+        if (is_member)
+            put(state{ member_fund[Call.caller] = Call.value})
+        else 
+            put(state{ contributor_fund[Call.caller] = Call.value})    
+
+    stateful entrypoint execute_proposal(index: int): int =
+        let is_exist_proposal = Map.member(index, state.proposals)
+        require(is_exist_proposal, "!proposal")
+
+        let voted_proposal = state.proposals[index]
+        let proposal_voters = voted_proposal.voters
+        require(Map.size(proposal_voters) > 0, "!size")
+
+        let proposal_voters_list = Map.to_list(proposal_voters)
+
+        //proposal_voters_list
+        let voted_list = List.filter((a: (address * bool)) => Pair.snd(a) == true, proposal_voters_list)
+        require(List.length(state.members) == List.length(voted_list), "!enough_vote")
+
+        if (voted_proposal.proposal_type != 1)
+            require(Chain.timestamp >= voted_proposal.start_date, "start_date>block_timestamp")
+
+        let recipients_and_tokens_list = Map.to_list(voted_proposal.recipients)
+        require(ListUtil.validate_expenses(recipients_and_tokens_list), "!enough_balance")
+        put(state {proposals[index].executed = true})
+        let sent_tokens = spend_to_many'(recipients_and_tokens_list, 0, Contract.balance)
+        sent_tokens
+
+    entrypoint get_contract_balance(): int =
+        Contract.balance
+
+    stateful entrypoint add_memmber(new_member: address): bool =
+        let is_member = List.contains(new_member, state.members)
+        require(!is_member, "Existed")
+        put(state {members = new_member::state.members})
+        true 
+
+    stateful entrypoint remove_member(member: address): bool =
+        let is_member = List.contains(member, state.members)
+        require(is_member, "!Existed")
+        put(state {members = List.filter((m) => m != member, state.members)})
+        true
+
+    // traverse through list of maps
+    stateful function spend_to_many'(list, total_tokens_spend, amount_left) : int = 
+        switch(list)
+            [] => total_tokens_spend
+            (address, tokens) :: l' =>
+                require(amount_left >= tokens, "!enough_tokens") // if for some reason amount of tokens is not enough, the recursion will be aborted
+                Chain.spend(address,tokens) 
+                spend_to_many'(l', total_tokens_spend + tokens, amount_left - tokens)
+
+main contract DAORegistry = 
+    record dao = {
+        owner: address,
+        title: string,
+        description: string
+        }
+
+    record state = {
+        daos: map(address, dao),
+        sub_daos: map(address, list(address))
+        }
+
+    entrypoint init() = {
+        daos= {},
+        sub_daos= {}
+        }
+
+    stateful entrypoint create_dao(title: string, description: string, members: list(address), parent_dao: option(address)) =
+        let new_dao = {
+            owner= Call.caller,
+            title= title,
+            description= description,
+            members= members,
+            proposals= {},
+            member_fund= {},
+            contributor_fund= {}
+            }
+        if (Map.size(state.daos) > 0) 
+            switch(Chain.clone(ref=Address.to_contract(Pair.fst(List.get(0, Map.to_list(state.daos)))), protected=true, new_dao))
+                None => abort("!DAO")
+                Some(created_dao) =>
+                    put(state { daos[created_dao.address] = { owner= Call.caller, title= title, description= description  } })
+
+                    if (Option.is_some(parent_dao))
+                        let parent_dao_address = Option.force(parent_dao)
+                        put(state { sub_daos[parent_dao_address] = created_dao.address::state.sub_daos[parent_dao_address] })
+                   
+        else             
+            let created_dao = Chain.create(new_dao): DAO
+
+            put(state { daos[created_dao.address] = { owner= Call.caller, title= title, description= description  } })
+
+            if (Option.is_some(parent_dao))
+                let parent_dao_address = Option.force(parent_dao)
+                put(state { sub_daos[parent_dao_address] = created_dao.address::state.sub_daos[parent_dao_address] })
+        
+
+    entrypoint get_daos(): list(address * dao) =
+        Map.to_list(state.daos)
+    
+    entrypoint get_sub_daos_of(parent_dao: address): list(address * dao) = 
+
+        let sub_daos_list = state.sub_daos[parent_dao]
+
+        if (List.length(sub_daos_list) > 0)
+            let sub_daos = List.filter((d: (address * dao)) => List.contains(Pair.fst(d), sub_daos_list), Map.to_list(state.daos))
+            sub_daos
+        else
+            []

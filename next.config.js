@@ -1,6 +1,6 @@
 // require("dotenv").config();
 module.exports = {
-    reactStrictMode: true
+    reactStrictMode: false
     // env: {
     //     dbUrl: process.env.dburl,
     //     contractAddress: process.env.contractAddress

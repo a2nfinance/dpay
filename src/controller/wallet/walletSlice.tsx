@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 type WalletState = {
+    aeSdk?: any,
     ready: boolean,
     address: string,
     networkId: string

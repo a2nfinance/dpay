@@ -1,13 +1,18 @@
+import { useAppSelector } from "src/controller/hooks";
 import { Item } from "./Item";
+import { useEffect } from "react";
+import { getDaos } from "src/core";
 
 export const DAOItems = () => {
-    const a = [1,2,3,4];
-
+    const {daos} = useAppSelector(state => state.dao)
+    useEffect(() => {
+        getDaos()
+    }, [])
     return (
         <>
         {
-             a.map(i => {
-                return <Item />
+             daos.map((dao, index) => {
+                return <Item key={index} dao={dao}/>
             })
         }
         

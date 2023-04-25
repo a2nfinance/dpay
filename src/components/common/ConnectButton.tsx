@@ -1,6 +1,6 @@
 import { Dropdown, Button, MenuProps } from "antd";
 import { useAppSelector } from "src/controller/hooks";
-import { connect, disconnect, transfer } from "src/core/wallet";
+import { connect, disconnect, getDaos, transfer } from "src/core";
 import { useAddress } from "src/hooks/useAddress";
 export const ConnectButton = () => {
     const {getShortAddress} = useAddress()
@@ -29,6 +29,11 @@ export const ConnectButton = () => {
             key: '3',
             label: "test transfer",
             onClick: () => transfer()
+        },
+        {
+            key: '4',
+            label: "test transfer",
+            onClick: () => getDaos()
         }
     ];
     return (

@@ -1,11 +1,21 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit'
+import { persistReducer, persistStore } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
 import walletReducer from "src/controller/wallet/walletSlice";
-
+import daoReducer from "src/controller/dao/daoSlice";
+import processReducer from "src/controller/process/processSlice";
+// const persistConfig = {
+//     key: 'wallet',
+//     storage,
+// }
+// const wallet = persistReducer(persistConfig, walletReducer)
 
 export function makeStore() {
     return configureStore({
         reducer: {
             wallet: walletReducer,
+            dao: daoReducer,
+            process: processReducer
         },
         middleware: (getDefaultMiddleware) =>
             getDefaultMiddleware({
@@ -26,3 +36,5 @@ export type AppThunk<ReturnType = void> = ThunkAction<
     unknown,
     Action<string>
     >
+
+export const persistor  = persistStore(store)    
