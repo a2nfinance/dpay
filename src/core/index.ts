@@ -1,8 +1,9 @@
 import { AeSdkAepp, Node, walletDetector, BrowserWindowMessageConnection, CompilerHttp } from '@aeternity/aepp-sdk';
 import { store } from "src/controller/store";
 import { setProps } from 'src/controller/wallet/walletSlice';
-import { ACI } from './aci';
+import { DaoRegistryACI, DaoACI } from './aci';
 import { setDaoProps } from 'src/controller/dao/daoSlice';
+import { setDaoDetailProps } from 'src/controller/dao/daoDetailSlice';
 const TESTNET_NODE_URL = process.env.NEXT_PUBLIC_TESTNET_NODE_URL;
 const MAINNET_NODE_URL = process.env.NEXT_PUBLIC_MAINNET_NODE_URL;
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_DAO_REGISTRY_ADDRESS;
@@ -86,11 +87,24 @@ const disconnect = async () => {
 const getDaos = async () => {
   try {
     await initialize();
-    let contract = await aeSdk.initializeContract({ aci: ACI, address: CONTRACT_ADDRESS })
+    let contract = await aeSdk.initializeContract({ aci: DaoRegistryACI, address: CONTRACT_ADDRESS })
     const tx = await contract.get_daos();
+    store.dispatch(setDaoProps({att: "daos", value: tx.decodedResult}))
+  } catch(e) {
+    console.error(e)
+  }
+  
+}
+
+const getDaoDetail = async (address: string) => {
+  try {
+    store.dispatch(setDaoDetailProps({att:"currentDaoAddress", value: address}))
+    await initialize();
+    let contract = await aeSdk.initializeContract({ aci: DaoACI, address: address })
+    const tx = await contract.get();
     //const tx = await contract.create_dao("hello", "hello", [], null);
     console.log(tx.decodedResult);
-    store.dispatch(setDaoProps({att: "daos", value: tx.decodedResult}))
+    store.dispatch(setDaoDetailProps({att: "daos", value: tx.decodedResult}))
   } catch(e) {
     console.error(e)
   }
@@ -110,5 +124,6 @@ export {
   transfer,
   connect,
   disconnect,
-  getDaos
+  getDaos,
+  getDaoDetail
 }

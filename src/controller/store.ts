@@ -3,6 +3,7 @@ import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import walletReducer from "src/controller/wallet/walletSlice";
 import daoReducer from "src/controller/dao/daoSlice";
+import daoDetailReducer from "src/controller/dao/daoDetailSlice";
 import processReducer from "src/controller/process/processSlice";
 // const persistConfig = {
 //     key: 'wallet',
@@ -15,7 +16,8 @@ export function makeStore() {
         reducer: {
             wallet: walletReducer,
             dao: daoReducer,
-            process: processReducer
+            process: processReducer,
+            daoDetail: daoDetailReducer
         },
         middleware: (getDefaultMiddleware) =>
             getDefaultMiddleware({

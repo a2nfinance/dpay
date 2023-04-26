@@ -10,7 +10,6 @@ import {
 import { Layout, Menu, Button, theme, Input, Space } from 'antd';
 
 import { useRouter } from "next/router";
-import { useAppSelector } from "src/controller/hooks";
 import { ConnectButton } from "src/components/common/ConnectButton";
 
 const { Header, Sider, Content } = Layout;

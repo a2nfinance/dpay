@@ -7,5 +7,9 @@ export const useAddress = () => {
         )
     };
 
-    return { getShortAddress };
+    const nomalizeContractAddress = (address: string) => {
+        return address.replace("ak", "ct");
+    }
+
+    return { getShortAddress, nomalizeContractAddress };
 };

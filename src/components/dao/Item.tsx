@@ -1,7 +1,8 @@
 import { CaretRightOutlined } from '@ant-design/icons';
-import { Button, Collapse, theme } from 'antd';
-import ButtonGroup from 'antd/es/button/button-group';
+import { Button, Collapse, theme, Space } from 'antd';
+import { useRouter } from 'next/router';
 import { DAO } from 'src/controller/dao/daoSlice';
+import { useAddress } from 'src/hooks/useAddress';
 
 const { Panel } = Collapse;
 
@@ -11,6 +12,8 @@ const text = `
   it can be found as a welcome guest in many households across the world.`
 
 export const Item = (dao) => {
+    const router = useRouter();
+    const {nomalizeContractAddress} = useAddress();
     const { token } = theme.useToken();
     const panelStyle = {
         marginBottom: 24,
@@ -29,10 +32,10 @@ export const Item = (dao) => {
           <Panel header={daoObj.title} key="1" style={panelStyle}>
             <p>{daoObj.description}</p>
 
-            <ButtonGroup>
-              <Button>View Detail</Button>
+            <Space wrap>
+              <Button onClick={() => router.push(`dao/address/${nomalizeContractAddress(dao.dao[0])}`)}>View Detail</Button>
               <Button>Join this DAO</Button>
-            </ButtonGroup>
+            </Space>
           </Panel>
         </Collapse>
       );
