@@ -7,7 +7,7 @@ import {
     VideoCameraOutlined,
 } from '@ant-design/icons';
 
-import { Layout, Menu, Button, theme, Input, Space } from 'antd';
+import { Layout, Menu, Button, theme, Input, Space, Affix, Form } from 'antd';
 
 import { useRouter } from "next/router";
 import { ConnectButton } from "src/components/common/ConnectButton";
@@ -31,9 +31,11 @@ export const LayoutProvider = (props: Props) => {
         <Layout>
             <Sider trigger={null} collapsible collapsed={collapsed}>
                 <div className="logo" />
+
                 <Menu
                     theme="dark"
                     mode="inline"
+
                     defaultSelectedKeys={['1']}
                     items={[
                         {
@@ -58,12 +60,13 @@ export const LayoutProvider = (props: Props) => {
                         },
                     ]}
                 />
+
             </Sider>
             <Layout>
 
                 <Header //@ts-ignore
                     style={{ padding: 0, background: colorBgContainer }}>
-                    <Space align="center">
+                    <Space align="center" style={{display: "flex", justifyContent: "space-between"}}>
                         <Button
                             type="text"
                             icon={collapsed ?
@@ -76,15 +79,24 @@ export const LayoutProvider = (props: Props) => {
                                 height: 64,
                             }}
                         />
-                        <Input.Search
-                            placeholder="input search text"
-                            allowClear
-                            enterButton="Search"
-                            size="large"
-                            onSearch={onSearch}
-                        />
+                        <Form layout="inline">
 
-                        <ConnectButton />
+                            <Form.Item>
+                                <Input.Search
+                                    placeholder="input search text"
+                                    allowClear
+                                    enterButton="Search"
+                                    size="large"
+                                    onSearch={onSearch}
+                                />
+                            </Form.Item>
+                            <Form.Item>
+                                <ConnectButton />
+                            </Form.Item>
+                        </Form>
+
+
+
                     </Space>
                 </Header>
                 <Content
@@ -92,7 +104,8 @@ export const LayoutProvider = (props: Props) => {
                     style={{
                         margin: '24px 16px',
                         padding: 24,
-                        minHeight: 280,
+                        height: "100vh",
+                        boxSizing: "border-box",
                         background: colorBgContainer,
                     }}
                 >

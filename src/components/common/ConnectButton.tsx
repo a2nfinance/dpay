@@ -1,4 +1,5 @@
 import { Dropdown, Button, MenuProps } from "antd";
+import Image from "next/image";
 import { useAppSelector } from "src/controller/hooks";
 import { connect, disconnect, getDaos, transfer } from "src/core";
 import { useAddress } from "src/hooks/useAddress";
@@ -38,8 +39,8 @@ export const ConnectButton = () => {
     ];
     return (
         !!address ? <Dropdown menu={{ items }} placement="bottomLeft" arrow>
-             <Button type="primary">{getShortAddress(address)}</Button>
-        </Dropdown> : <Button type="primary" onClick={() => connect()}>Connect Wallet</Button>
+             <Button icon={<Image alt="ae" width={30} height={30} src={"/aeternity-ae-logo.png"} style={{paddingRight: "5px"}} />} type="primary" size="large">{getShortAddress(address)}</Button>
+        </Dropdown> : <Button type="primary" size="large" onClick={() => connect()}>Connect Wallet</Button>
     
     )
 }

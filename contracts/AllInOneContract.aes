@@ -38,12 +38,15 @@ contract interface DAOInterface =
     stateful entrypoint create_proposal : () => unit
     stateful entrypoint vote : () => unit
     entrypoint get_proposals : () => list(address * 'a)
+    entrypoint get_member_fund: () => list(address * int)
+    entrypoint get_contributor_fund: () => list(address * int)
+    entrypoint get_members: () => list(address)
     payable stateful entrypoint fund : () => unit
     stateful entrypoint execute_proposal: () => int
     stateful entrypoint add_memmber: (address) => bool
     stateful entrypoint remove_member: (address) => bool
 
-contract DAO :  DAOInterface = 
+payable contract DAO :  DAOInterface = 
 
     record proposal = {
         title: string,
@@ -56,7 +59,14 @@ contract DAO :  DAOInterface =
         voters: map(address, bool),
         executed: bool
         } 
-
+    record simple_state = {
+        owner : address,
+        title : string,
+        description : string,
+        members_length: int,
+        proposals_length: int,
+        balance: int
+    }
     record state = {
         owner : address,
         title : string,
@@ -70,8 +80,8 @@ contract DAO :  DAOInterface =
     entrypoint init(dao): state =
         dao
 
-    entrypoint get(): state =
-        state
+    entrypoint get(): simple_state =
+        {state.owner, state.title, state.description, List.length(state.members), Map.size(proposals), Contract.balance}
 
     stateful entrypoint create_proposal(title: string, description: string, proposal_type: int, recipients: map(address, int), start_date: int, stop_date: int) = 
         let new_proposal = {
@@ -101,6 +111,16 @@ contract DAO :  DAOInterface =
 
     entrypoint get_proposals(): list(int * proposal) = 
         Map.to_list(state.proposals)
+
+
+    entrypoint get_member_fund(): list(address * int) =
+        Map.to_list(state.member_fund)
+
+    entrypoint get_contributor_fund: list(address * int) =
+        Map.to_list(state.contributor_fund)  
+
+    entrypoint get_members: list(address) =
+        state.members
 
     payable stateful entrypoint fund() =
         // check contributor or member

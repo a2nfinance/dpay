@@ -1,5 +1,8 @@
 import { Tabs } from 'antd';
 import type { TabsProps } from 'antd';
+import { Proposals } from './Proposals';
+import { SubDaos } from './SubDaos';
+import { TreasuryInfo } from './TreasuryInfo';
 
 export const DaoTabs = () => {
 
@@ -7,17 +10,17 @@ export const DaoTabs = () => {
         {
             key: '1',
             label: `Proposals`,
-            children: `Content of Tab Pane 1`,
+            children: <Proposals />,
         },
         {
             key: '2',
             label: `Sub Daos`,
-            children: `Content of Tab Pane 2`,
+            children: <SubDaos />,
         },
         {
             key: '3',
             label: `Treasury Details`,
-            children: `Content of Tab Pane 3`,
+            children: <TreasuryInfo />,
         },
     ];
 
