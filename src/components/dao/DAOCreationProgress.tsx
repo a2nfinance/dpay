@@ -1,10 +1,23 @@
-import { Steps, Card } from 'antd';
+import { Card, Steps } from 'antd';
+import { useCallback } from 'react';
+import { setDaoFormProps } from 'src/controller/dao/daoFormSlice';
+import { useAppDispatch, useAppSelector } from 'src/controller/hooks';
 export const DAOCreationProgress = () => {
+    const {step} = useAppSelector(state => state.daoForm)
+    const dispatch = useAppDispatch();
+    const handleChangeStep = useCallback(() => {
+        if (step > 0) {
+            console.log(step)
+            dispatch(setDaoFormProps({att: "step", value: step - 1 }))
+        }
+        
+    }, [])
     return (
         <Card title="DAO Creation Process">
             <Steps
                 direction="vertical"
-                current={1}
+                current={step}
+                onChange={() => handleChangeStep()}
                 items={[
                     {
                         title: 'Pick a DAO type and name it',
@@ -13,10 +26,12 @@ export const DAOCreationProgress = () => {
                         title: 'Governance configuration',
                     },
                     {
-                        title: "Voting configuration"
+                        title: "Voting configuration",
+                        
                     },
                     {
                         title: 'Review and approve',
+                        
                     },
                 ]}
             />

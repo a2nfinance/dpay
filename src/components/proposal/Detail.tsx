@@ -1,5 +1,5 @@
-import { ArrowUpOutlined, CheckCircleOutlined, CloseCircleOutlined, MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Divider, Form, Input, Radio, Row, Space, Statistic, Switch } from "antd";
+import { ArrowUpOutlined, CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
+import { Card, Col, Divider, Form, Input, Radio, Row, Space, Statistic, Switch, Table } from "antd";
 import { useState } from "react";
 
 export const Details = () => {
@@ -9,6 +9,32 @@ export const Details = () => {
     const onFinish = (values: any) => {
         console.log('Received values of form:', values);
     };
+
+    const dataSource = [
+        {
+            key: '1',
+            address: 'Mike',
+            amount: 10,
+        },
+        {
+            key: '2',
+            address: 'Mike',
+            amount: 20,
+        },
+    ];
+
+    const columns = [
+        {
+            title: 'Address',
+            dataIndex: 'address',
+            key: 'address',
+        },
+        {
+            title: 'Amount',
+            dataIndex: 'amount',
+            key: 'amount',
+        }
+    ];
     return (
         <Form onFinish={onFinish}>
 
@@ -85,37 +111,7 @@ export const Details = () => {
             </Card>
             <Divider />
             <Card size="small" title="Recipients">
-                <Form.List name="recipients">
-                    {(fields, { add, remove }) => (
-                        <>
-                            {fields.map(({ key, name, ...restField }, index) => (
-                                <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
-                                    <Form.Item
-                                        {...restField}
-                                        name={[name, 'address']}
-                                        rules={[{ required: true, message: 'Missing address' }]}
-                                    >
-                                        <Input size='large' placeholder="Address" />
-                                    </Form.Item>
-                                    <Form.Item
-                                        {...restField}
-                                        name={[name, 'amount']}
-                                        rules={[{ required: true, message: 'Missing amount' }]}
-                                    >
-                                        <Input size='large' placeholder="Amount" />
-                                    </Form.Item>
-                                    <MinusCircleOutlined onClick={() => remove(name)} />
-                                </Space>
-                            ))}
-                            <Form.Item>
-                                <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                                    Add Recipient
-                                </Button>
-                            </Form.Item>
-                        </>
-                    )}
-                </Form.List>
-
+                <Table dataSource={dataSource} columns={columns} />
             </Card>
 
         </Form>

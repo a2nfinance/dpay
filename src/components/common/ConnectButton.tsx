@@ -25,16 +25,6 @@ export const ConnectButton = () => {
                 </a>
             ),
             onClick: () => disconnect() 
-        },
-        {
-            key: '3',
-            label: "test transfer",
-            onClick: () => transfer()
-        },
-        {
-            key: '4',
-            label: "test transfer",
-            onClick: () => getDaos()
         }
     ];
     return (
