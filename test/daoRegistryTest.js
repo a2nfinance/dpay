@@ -31,7 +31,7 @@ describe('DAORegistry', () => {
   });
 
   it('DaoRegistry: create a DAO', async () => {
-    await contract.create_dao("hello", "hello", [utils.getDefaultAccounts()[1].address, utils.getDefaultAccounts()[2].address], null, {onAccount: utils.getDefaultAccounts()[1]})
+    await contract.create_dao("hello", "hello", 100, true, 1, [utils.getDefaultAccounts()[1].address, utils.getDefaultAccounts()[2].address], null, {onAccount: utils.getDefaultAccounts()[1]})
 
     const { decodedResult } = await contract.get_daos();
     console.log(decodedResult);
@@ -45,9 +45,9 @@ describe('DAORegistry', () => {
 
   it('DAORegistry: create two daos', async () => {
     // The first DAO contract
-    await contract.create_dao("hello", "hello", [utils.getDefaultAccounts()[1].address, utils.getDefaultAccounts()[2].address], null, {onAccount: utils.getDefaultAccounts()[1]})
+    await contract.create_dao("hello", "hello", 100, true, 1, [utils.getDefaultAccounts()[1].address, utils.getDefaultAccounts()[2].address], null, {onAccount: utils.getDefaultAccounts()[1]})
     // Use Chain Clone
-    await contract.create_dao("hello", "hello", [utils.getDefaultAccounts()[1].address, utils.getDefaultAccounts()[2].address], null, {onAccount: utils.getDefaultAccounts()[2]})
+    await contract.create_dao("hello", "hello", 100, true, 1, [utils.getDefaultAccounts()[1].address, utils.getDefaultAccounts()[2].address], null, {onAccount: utils.getDefaultAccounts()[2]})
     const { decodedResult } = await contract.get_daos();
     //console.log(decodedResult);
     assert.equal(decodedResult.length, 2);
