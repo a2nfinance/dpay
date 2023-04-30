@@ -7,11 +7,10 @@ export const DAOCreationProgress = () => {
     const dispatch = useAppDispatch();
     const handleChangeStep = useCallback(() => {
         if (step > 0) {
-            console.log(step)
             dispatch(setDaoFormProps({att: "step", value: step - 1 }))
         }
         
-    }, [])
+    }, [step])
     return (
         <Card title="DAO Creation Process">
             <Steps

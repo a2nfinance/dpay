@@ -23,7 +23,7 @@ main contract DAORegistry =
         sub_daos= {}
         }
 
-    stateful entrypoint create_dao(title: string, description: string, percentage: int, open: bool, members: list(address), parent_dao: option(address)) =
+    stateful entrypoint create_dao(title: string, description: string, percentage: int, open: bool, dao_type: int, members: list(address), parent_dao: option(address)) =
         let new_dao = {
             owner= Call.caller,
             title= title,
@@ -32,6 +32,7 @@ main contract DAORegistry =
             status= 1,
             open= open,
             created_date= Chain.timestamp,
+            dao_type= dao_type,
             members= members,
             proposals= {},
             member_fund= {},

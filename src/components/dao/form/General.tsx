@@ -1,12 +1,9 @@
-import { Button, Card, Form, Input, Space } from 'antd';
-import Image from 'next/image';
+import { Button, Form, Input, Radio } from 'antd';
 import { setDaoFormProps } from 'src/controller/dao/daoFormSlice';
-import { useAppDispatch, useAppSelector } from 'src/controller/hooks';
+import { useAppDispatch } from 'src/controller/hooks';
 import { formStyle } from "src/theme/layout";
-const { Meta } = Card;
 
 export const General = () => {
-    const {step} = useAppSelector(state => state.daoForm);
     const dispatch = useAppDispatch();
     const [form] = Form.useForm();
 
@@ -33,28 +30,16 @@ export const General = () => {
                 <Input.TextArea size='large' />
             </Form.Item>
 
-            <Space wrap>
-                <Card
-                    hoverable
-                    style={{ width: 250 }}
-                    cover={<Image width={250} height={250} alt="example" src={"/membership.png"} />}>
-                    <Meta title="Membership DAO (Multisig)" description="Small organization with a few members who are likely to stick around. Members can be added and removed by a vote of existing members." />
-                </Card>
-                <Card
-                    hoverable
-                    style={{ width: 250 }}
-                    cover={<Image width={250} height={250} alt="example" src={"/aeternity-ae-logo.png"} />}
-                >
-                    <Meta title="Token-based DAO" description="Fluid organization with many members who can join and leave as they wish. Members can alter their governance power and participation by exchanging tokens." />
-                </Card>
-                <Card
-                    hoverable
-                    style={{ width: 250 }}
-                    cover={<Image width={250} height={250} alt="example" src={"/membership.png"} />}
-                >
-                    <Meta title="Non-Fungible Token (NFT)-based DAO" description="Fluid organization with many members who can join and leave as they wish. Members can alter their governance power and participation by exchanging non-fungible tokens." />
-                </Card>
-            </Space>
+            <Form.Item name="dao_type" initialValue={1} >
+                <Radio.Group>
+                    <Radio value={1}>Membership DAO (Multisig)</Radio>
+                    <Radio disabled value={2}>Token-based DAO (coming soon)</Radio>
+                    <Radio disabled value={3}>Non-Fungible Token (NFT)-based DAO (coming soon)</Radio>
+                </Radio.Group>
+            </Form.Item>
+            <p><strong>Membership DAO (Multisig):</strong> Small organization with a few members who are likely to stick around. Members can be added and removed by a vote of existing members.</p>
+            <p><strong>Token-based DAO:</strong> Fluid organization with many members who can join and leave as they wish. Members can alter their governance power and participation by exchanging tokens.</p>
+            <p><strong>Non-Fungible Token (NFT)-based DAO:</strong> Fluid organization with many members who can join and leave as they wish. Members can alter their governance power and participation by exchanging non-fungible tokens.</p>
             <Form.Item>
                 <Button type="primary" htmlType="submit">
                     Continue

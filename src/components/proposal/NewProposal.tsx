@@ -21,8 +21,8 @@ export const NewProposal = () => {
             </Card>
             <Divider />
             <Card size="small" title="Payment Settings">
-                <Form.Item name="payment_type" >
-                    <Radio.Group defaultValue={paymentType} onChange={(e) => setPaymentType(e.target.value)}>
+                <Form.Item name="payment_type" initialValue={1} >
+                    <Radio.Group onChange={(e) => setPaymentType(e.target.value)}>
                         <Radio value={1}>Instant Payment</Radio>
                         <Radio value={2}>Locked Time Payment</Radio>
                         <Radio value={3}>Crypto Streaming</Radio>

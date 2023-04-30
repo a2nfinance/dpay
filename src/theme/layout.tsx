@@ -5,7 +5,8 @@ const formLayout = {
 };
 
 const formStyle = { 
-    maxWidth: 900 
+    maxWidth: 900,
+    marginLeft: 150,
 }
 
 export {

@@ -28,11 +28,12 @@ payable contract DAO :  DAOInterface =
         percentage: int,
         status: int,
         open: bool,
+        created_date: int,
+        dao_type: int,
         members_length: int,
         proposals_length: int,
-        balance: int,
-        created_date: int,
-    }
+        balance: int
+        }
     record state = {
         owner : address,
         title : string,
@@ -41,6 +42,7 @@ payable contract DAO :  DAOInterface =
         status: int,
         open: bool,
         created_date: int,
+        dao_type: int,
         members : list(address),
         proposals: map(int, proposal),
         member_fund: map(address, int),
@@ -51,7 +53,7 @@ payable contract DAO :  DAOInterface =
         dao
 
     entrypoint get(): simple_state =
-        {state.owner, state.title, state.description, state.percentage, state.status, state.open, state.created_date, List.length(state.members), Map.size(proposals), Contract.balance}
+        {state.owner, state.title, state.description, state.percentage, state.status, state.open, state.created_date, state.dao_type, List.length(state.members), Map.size(proposals), Contract.balance}
 
     stateful entrypoint create_proposal(title: string, description: string, proposal_type: int, recipients: map(address, int), start_date: int, stop_date: int) = 
         let new_proposal = {
