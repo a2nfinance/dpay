@@ -87,6 +87,7 @@ payable contract DAO :  DAOInterface =
         put(state{proposals[size] = new_proposal})
 
     stateful entrypoint vote(index: int, vote_value: bool) =
+        require(state.proposals[index].status == 1, "!active")
         let is_member = List.contains(Call.caller, state.members)
         require(is_member, "!member")
 
@@ -136,6 +137,7 @@ payable contract DAO :  DAOInterface =
         let recipients_and_tokens_list = Map.to_list(voted_proposal.recipients)
         require(ListUtil.validate_expenses(recipients_and_tokens_list), "!enough_balance")
         put(state {proposals[index].executed = true})
+        put(state {proposals[index].status = 3})
         let sent_tokens = spend_to_many'(recipients_and_tokens_list, 0, Contract.balance)
         sent_tokens
 
