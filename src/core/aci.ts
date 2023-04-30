@@ -1,140 +1,150 @@
-export const DaoRegistryACI = [
-    {
-      "contract": {
-        "functions": [
+export const DaoRegistryACI = [{
+  "contract": {
+    "functions": [
+      {
+        "arguments": [],
+        "name": "init",
+        "payable": false,
+        "returns": "DAORegistry.state",
+        "stateful": false
+      },
+      {
+        "arguments": [
           {
-            "arguments": [],
-            "name": "init",
-            "payable": false,
-            "returns": "DAORegistry.state",
-            "stateful": false
+            "name": "title",
+            "type": "string"
           },
           {
-            "arguments": [
-              {
-                "name": "title",
-                "type": "string"
-              },
-              {
-                "name": "description",
-                "type": "string"
-              },
-              {
-                "name": "members",
-                "type": {
-                  "list": [
-                    "address"
-                  ]
-                }
-              },
-              {
-                "name": "parent_dao",
-                "type": {
-                  "option": [
-                    "address"
-                  ]
-                }
-              }
-            ],
-            "name": "create_dao",
-            "payable": false,
-            "returns": {
-              "tuple": []
-            },
-            "stateful": true
+            "name": "description",
+            "type": "string"
           },
           {
-            "arguments": [],
-            "name": "get_daos",
-            "payable": false,
-            "returns": {
+            "name": "percentage",
+            "type": "int"
+          },
+          {
+            "name": "open",
+            "type": "bool"
+          },
+          {
+            "name": "dao_type",
+            "type": "int"
+          },
+          {
+            "name": "members",
+            "type": {
               "list": [
-                {
-                  "tuple": [
-                    "address",
-                    "DAORegistry.dao"
-                  ]
-                }
+                "address"
               ]
-            },
-            "stateful": false
+            }
           },
           {
-            "arguments": [
-              {
-                "name": "parent_dao",
-                "type": "address"
-              }
-            ],
-            "name": "get_sub_daos_of",
-            "payable": false,
-            "returns": {
-              "list": [
-                {
-                  "tuple": [
-                    "address",
-                    "DAORegistry.dao"
-                  ]
-                }
+            "name": "parent_dao",
+            "type": {
+              "option": [
+                "address"
               ]
-            },
-            "stateful": false
+            }
           }
         ],
-        "kind": "contract_main",
-        "name": "DAORegistry",
+        "name": "create_dao",
         "payable": false,
-        "state": {
-          "record": [
+        "returns": {
+          "tuple": []
+        },
+        "stateful": true
+      },
+      {
+        "arguments": [],
+        "name": "get_daos",
+        "payable": false,
+        "returns": {
+          "list": [
             {
-              "name": "daos",
-              "type": {
-                "map": [
-                  "address",
-                  "DAORegistry.dao"
-                ]
-              }
-            },
-            {
-              "name": "sub_daos",
-              "type": {
-                "map": [
-                  "address",
-                  {
-                    "list": [
-                      "address"
-                    ]
-                  }
-                ]
-              }
+              "tuple": [
+                "address",
+                "DAORegistry.dao"
+              ]
             }
           ]
         },
-        "typedefs": [
+        "stateful": false
+      },
+      {
+        "arguments": [
           {
-            "name": "dao",
-            "typedef": {
-              "record": [
-                {
-                  "name": "owner",
-                  "type": "address"
-                },
-                {
-                  "name": "title",
-                  "type": "string"
-                },
-                {
-                  "name": "description",
-                  "type": "string"
-                }
-              ]
-            },
-            "vars": []
+            "name": "parent_dao",
+            "type": "address"
           }
-        ]
+        ],
+        "name": "get_sub_daos_of",
+        "payable": false,
+        "returns": {
+          "list": [
+            {
+              "tuple": [
+                "address",
+                "DAORegistry.dao"
+              ]
+            }
+          ]
+        },
+        "stateful": false
       }
-    }
-  ]
+    ],
+    "kind": "contract_main",
+    "name": "DAORegistry",
+    "payable": false,
+    "state": {
+      "record": [
+        {
+          "name": "daos",
+          "type": {
+            "map": [
+              "address",
+              "DAORegistry.dao"
+            ]
+          }
+        },
+        {
+          "name": "sub_daos",
+          "type": {
+            "map": [
+              "address",
+              {
+                "list": [
+                  "address"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "typedefs": [
+      {
+        "name": "dao",
+        "typedef": {
+          "record": [
+            {
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "name": "title",
+              "type": "string"
+            },
+            {
+              "name": "description",
+              "type": "string"
+            }
+          ]
+        },
+        "vars": []
+      }
+    ]
+  }
+}]
 
 export const DaoACI = [{
   "contract": {
@@ -155,7 +165,7 @@ export const DaoACI = [{
         "arguments": [],
         "name": "get",
         "payable": false,
-        "returns": "DAO.state",
+        "returns": "DAO.simple_state",
         "stateful": false
       },
       {
@@ -233,6 +243,49 @@ export const DaoACI = [{
       },
       {
         "arguments": [],
+        "name": "get_member_fund",
+        "payable": false,
+        "returns": {
+          "list": [
+            {
+              "tuple": [
+                "address",
+                "int"
+              ]
+            }
+          ]
+        },
+        "stateful": false
+      },
+      {
+        "arguments": [],
+        "name": "get_contributor_fund",
+        "payable": false,
+        "returns": {
+          "list": [
+            {
+              "tuple": [
+                "address",
+                "int"
+              ]
+            }
+          ]
+        },
+        "stateful": false
+      },
+      {
+        "arguments": [],
+        "name": "get_members",
+        "payable": false,
+        "returns": {
+          "list": [
+            "address"
+          ]
+        },
+        "stateful": false
+      },
+      {
+        "arguments": [],
         "name": "fund",
         "payable": true,
         "returns": {
@@ -286,7 +339,7 @@ export const DaoACI = [{
     ],
     "kind": "contract_child",
     "name": "DAO",
-    "payable": false,
+    "payable": true,
     "state": {
       "record": [
         {
@@ -300,6 +353,26 @@ export const DaoACI = [{
         {
           "name": "description",
           "type": "string"
+        },
+        {
+          "name": "percentage",
+          "type": "int"
+        },
+        {
+          "name": "status",
+          "type": "int"
+        },
+        {
+          "name": "open",
+          "type": "bool"
+        },
+        {
+          "name": "created_date",
+          "type": "int"
+        },
+        {
+          "name": "dao_type",
+          "type": "int"
         },
         {
           "name": "members",
@@ -388,6 +461,66 @@ export const DaoACI = [{
             {
               "name": "executed",
               "type": "bool"
+            },
+            {
+              "name": "status",
+              "type": "int"
+            },
+            {
+              "name": "created_date",
+              "type": "int"
+            }
+          ]
+        },
+        "vars": []
+      },
+      {
+        "name": "simple_state",
+        "typedef": {
+          "record": [
+            {
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "name": "title",
+              "type": "string"
+            },
+            {
+              "name": "description",
+              "type": "string"
+            },
+            {
+              "name": "percentage",
+              "type": "int"
+            },
+            {
+              "name": "status",
+              "type": "int"
+            },
+            {
+              "name": "open",
+              "type": "bool"
+            },
+            {
+              "name": "created_date",
+              "type": "int"
+            },
+            {
+              "name": "dao_type",
+              "type": "int"
+            },
+            {
+              "name": "members_length",
+              "type": "int"
+            },
+            {
+              "name": "proposals_length",
+              "type": "int"
+            },
+            {
+              "name": "balance",
+              "type": "int"
             }
           ]
         },
