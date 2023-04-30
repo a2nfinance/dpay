@@ -1,15 +1,18 @@
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Radio, Segmented, Space } from 'antd';
-import { setDaoFormProps } from 'src/controller/dao/daoFormSlice';
-import { useAppDispatch } from 'src/controller/hooks';
+import { convertStepForm, setDaoFormProps } from 'src/controller/dao/daoFormSlice';
+import { useAppDispatch, useAppSelector } from 'src/controller/hooks';
 
 import { formLayout, formStyle } from "src/theme/layout"
 export const Governance = () => {
     const [form] = Form.useForm();
     const dispatch = useAppDispatch();
 
+    const {open, members} = useAppSelector(state => state.daoForm)
+
     const onFinish = (values: any) => {
         console.log('Received values of form:', values);
+        dispatch(convertStepForm(values));
         dispatch(setDaoFormProps({
             att: "step",
             value: 2
@@ -24,13 +27,13 @@ export const Governance = () => {
             style={formStyle}
             autoComplete="off"
         >
-            <Form.Item name="open" initialValue={1} >
+            <Form.Item name="open" initialValue={open ? 2 : 1} >
                 <Radio.Group>
                     <Radio value={1}>Invited Members Only</Radio>
                     <Radio value={2}>Anyone can join</Radio>
                 </Radio.Group>
             </Form.Item>
-            <Form.List name="members">
+            <Form.List name="members" initialValue={members}>
                 {(fields, { add, remove }) => (
                     <>
                         {fields.map(({ key, name, ...restField }, index) => (

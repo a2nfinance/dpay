@@ -53,7 +53,19 @@ payable contract DAO :  DAOInterface =
         dao
 
     entrypoint get(): simple_state =
-        {state.owner, state.title, state.description, state.percentage, state.status, state.open, state.created_date, state.dao_type, List.length(state.members), Map.size(proposals), Contract.balance}
+        {
+          owner=state.owner, 
+          title=state.title, 
+          description=state.description, 
+          percentage=state.percentage, 
+          status=state.status, 
+          open=state.open, 
+          created_date=state.created_date, 
+          dao_type=state.dao_type,
+          members_length=List.length(state.members), 
+          proposals_length=Map.size(state.proposals), 
+          balance=Contract.balance
+          }
 
     stateful entrypoint create_proposal(title: string, description: string, proposal_type: int, recipients: map(address, int), start_date: int, stop_date: int) = 
         let new_proposal = {
@@ -67,7 +79,7 @@ payable contract DAO :  DAOInterface =
             voters= {},
             executed= false,
             status= 1,
-            created_date: Chain.timestamp
+            created_date= Chain.timestamp
             }
         
         let size = Map.size(state.proposals)  
@@ -90,10 +102,10 @@ payable contract DAO :  DAOInterface =
     entrypoint get_member_fund(): list(address * int) =
         Map.to_list(state.member_fund)
 
-    entrypoint get_contributor_fund: list(address * int) =
+    entrypoint get_contributor_fund(): list(address * int) =
         Map.to_list(state.contributor_fund)  
 
-    entrypoint get_members: list(address) =
+    entrypoint get_members(): list(address) =
         state.members
 
     payable stateful entrypoint fund() =

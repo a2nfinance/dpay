@@ -1,18 +1,17 @@
 import { Button, Form, Input, Radio } from 'antd';
-import { setDaoFormProps } from 'src/controller/dao/daoFormSlice';
-import { useAppDispatch } from 'src/controller/hooks';
+import { convertStepForm, setDaoFormProps } from 'src/controller/dao/daoFormSlice';
+import { useAppDispatch, useAppSelector } from 'src/controller/hooks';
 import { formStyle } from "src/theme/layout";
 
 export const General = () => {
     const dispatch = useAppDispatch();
+    const {title, description, dao_type} = useAppSelector(state => state.daoForm);
     const [form] = Form.useForm();
 
     const onFinish = (values: any) => {
         console.log('Received values of form:', values);
-        dispatch(setDaoFormProps({
-            att: "step",
-            value: 1
-        }))
+        dispatch(convertStepForm(values))
+        dispatch(setDaoFormProps({att: "step", value: 1}))
     };
     return (
         <Form
@@ -23,14 +22,14 @@ export const General = () => {
             onFinish={onFinish}
             autoComplete="off"
         >
-            <Form.Item name="title" label="Title" rules={[{ required: true, message: 'Missing title' }]}>
+            <Form.Item name="title" initialValue={title} label="Title" rules={[{ required: true, message: 'Missing title' }]}>
                 <Input size='large' />
             </Form.Item>
-            <Form.Item name="description" label="Description" rules={[{ required: true, message: 'Missing description' }]}>
+            <Form.Item name="description" initialValue={description} label="Description" rules={[{ required: true, message: 'Missing description' }]}>
                 <Input.TextArea size='large' />
             </Form.Item>
 
-            <Form.Item name="dao_type" initialValue={1} >
+            <Form.Item name="dao_type" initialValue={dao_type} >
                 <Radio.Group>
                     <Radio value={1}>Membership DAO (Multisig)</Radio>
                     <Radio disabled value={2}>Token-based DAO (coming soon)</Radio>
