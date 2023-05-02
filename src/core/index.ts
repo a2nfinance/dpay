@@ -10,7 +10,7 @@ const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_DAO_REGISTRY_ADDRESS;
 const COMPILER_URL = process.env.NEXT_PUBLIC_COMPILER_URL;
 
 let aeSdk = null;
-
+let walletConnected = false;
 const initialize = async () => {
   if (aeSdk) return;
   aeSdk = new AeSdkAepp({
@@ -44,29 +44,28 @@ const initialize = async () => {
     value: true
   }))
   console.log("create aesdk")
- 
+
 }
 
 const scanForWallets = async () => {
-  const handleWallets = async ({ wallets, newWallet }) => {
-    newWallet = newWallet || Object.values(wallets)[0]
-    if (confirm(`Do you want to connect to wallet ${newWallet.info.name} with id ${newWallet.info.id}`)) {
+  if (!walletConnected) {
+    const handleWallets = async ({ wallets, newWallet }) => {
+
+      newWallet = newWallet || Object.values(wallets)[0]
+      console.log(`Do you want to connect to wallet ${newWallet.info.name} with id ${newWallet.info.id}`)
       stopScan()
       let walletInfo = await aeSdk.connectToWallet(newWallet.getConnection())
-      let walletConnected = true
+      walletConnected = true
       const { address: { current } } = await aeSdk.subscribeAddress('subscribe', 'connected')
 
       store.dispatch(setProps({
         att: "address",
         value: Object.keys(current)[0]
       }))
-
     }
+    const scannerConnection = new BrowserWindowMessageConnection()
+    const stopScan = walletDetector(scannerConnection, handleWallets)
   }
-  const scannerConnection = new BrowserWindowMessageConnection()
-  const stopScan = walletDetector(scannerConnection, handleWallets)
-
-
 }
 
 const connect = async () => {
@@ -80,7 +79,7 @@ const disconnect = async () => {
     att: "address",
     value: ""
   }))
-  //this.walletConnected = false
+  walletConnected = false
   //if (this.reverseIframe) this.reverseIframe.remove()
 }
 
@@ -89,26 +88,26 @@ const getDaos = async () => {
     await initialize();
     let contract = await aeSdk.initializeContract({ aci: DaoRegistryACI, address: CONTRACT_ADDRESS })
     const tx = await contract.get_daos();
-    store.dispatch(setDaoProps({att: "daos", value: tx.decodedResult}))
-  } catch(e) {
+    store.dispatch(setDaoProps({ att: "daos", value: tx.decodedResult }))
+  } catch (e) {
     console.error(e)
   }
-  
+
 }
 
 const getDaoDetail = async (address: string) => {
   try {
-    store.dispatch(setDaoDetailProps({att:"currentDaoAddress", value: address}))
+    store.dispatch(setDaoDetailProps({ att: "currentDaoAddress", value: address }))
     await initialize();
     let contract = await aeSdk.initializeContract({ aci: DaoACI, address: address })
     const tx = await contract.get();
     //const tx = await contract.create_dao("hello", "hello", [], null);
     console.log(tx.decodedResult);
-    store.dispatch(setDaoDetailProps({att: "daos", value: tx.decodedResult}))
-  } catch(e) {
+    store.dispatch(setDaoDetailProps({ att: "daos", value: tx.decodedResult }))
+  } catch (e) {
     console.error(e)
   }
-  
+
 }
 
 const transfer = async () => {
@@ -118,6 +117,44 @@ const transfer = async () => {
   return returnValue.hash;
 }
 
+const createDAO = async (isSubDAo: boolean, parentDAO: string) => {
+  let daoForm = store.getState().daoForm;
+  await initialize();
+  await scanForWallets();
+  let contract = await aeSdk.initializeContract({ aci: DaoRegistryACI, address: CONTRACT_ADDRESS })
+  if (!isSubDAo) {
+    console.log(daoForm.title,
+      daoForm.description,
+      daoForm.percentage,
+      daoForm.open,
+      daoForm.dao_type,
+      daoForm.members.map(member => member.address)
+    );
+    const tx = await contract.create_dao(
+      daoForm.title,
+      daoForm.description,
+      daoForm.percentage,
+      daoForm.open,
+      daoForm.dao_type,
+      daoForm.members.map(member => member.address),
+      null
+    );
+    console.log(tx.decodedResult);
+  } else {
+    const tx = await contract.create_dao(
+      daoForm.title,
+      daoForm.description,
+      daoForm.percentage,
+      daoForm.open,
+      daoForm.dao_type,
+      Object.values(daoForm.members),
+      parentDAO
+    );
+    console.log(tx.decodedResult);
+  }
+}
+
+
 
 export {
   aeSdk,
@@ -125,5 +162,6 @@ export {
   connect,
   disconnect,
   getDaos,
-  getDaoDetail
+  getDaoDetail,
+  createDAO
 }
