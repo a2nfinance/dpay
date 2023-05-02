@@ -205,6 +205,7 @@ payable contract DAO :  DAOInterface =
                 Chain.spend(address,tokens) 
                 spend_to_many'(l', total_tokens_spend + tokens, amount_left - tokens)
 
+
 main contract DAORegistry = 
     record dao = {
         owner: address,

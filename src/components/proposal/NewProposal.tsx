@@ -1,6 +1,7 @@
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Card, Divider, Drawer, Form, Input, Radio, Space } from "antd"
 import { useState } from "react";
+import { createProposal } from "src/core";
 
 export const NewProposal = () => {
     const [form] = Form.useForm();
@@ -8,6 +9,7 @@ export const NewProposal = () => {
 
     const onFinish = (values: any) => {
         console.log('Received values of form:', values);
+        createProposal(values);
     };
     return (
         <Form onFinish={onFinish}>

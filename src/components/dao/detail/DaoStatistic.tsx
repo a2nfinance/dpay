@@ -2,6 +2,7 @@ import { Button, Col, Drawer, Row, Space, Statistic } from 'antd';
 import { useState } from 'react';
 import CountUp from 'react-countup';
 import { NewProposal } from 'src/components/proposal/NewProposal';
+import { fundDao } from 'src/core';
 const formatter = (value: number) => <CountUp end={value} separator="," />;
 export const DaoStatistic = () => {
   const [open, setOpen] = useState(false);
@@ -24,7 +25,9 @@ export const DaoStatistic = () => {
   const onCloseSubDao = () => {
     setOpenSubDao(false);
   };
-
+  const fund = () => {
+    fundDao(0.5);
+  }
   return (
     <Row gutter={6}>
       <Col span={4}>
@@ -44,7 +47,7 @@ export const DaoStatistic = () => {
         <Space direction="horizontal">
           <Button onClick={showDrawerSubDao}>New SubDao</Button>
           <Button onClick={showDrawer}>New Proposal</Button>
-          <Button>Fund Dao</Button>
+          <Button onClick={fund}>Fund Dao</Button>
         </Space>
 
       </Col>

@@ -11,6 +11,7 @@ const COMPILER_URL = process.env.NEXT_PUBLIC_COMPILER_URL;
 
 let aeSdk = null;
 let walletConnected = false;
+let contract = null;
 const initialize = async () => {
   if (aeSdk) return;
   aeSdk = new AeSdkAepp({
@@ -71,6 +72,7 @@ const scanForWallets = async () => {
 const connect = async () => {
   await initialize()
   await scanForWallets()
+  contract = await aeSdk.initializeContract({ aci: DaoRegistryACI, address: CONTRACT_ADDRESS })
 }
 
 const disconnect = async () => {
@@ -119,17 +121,8 @@ const transfer = async () => {
 
 const createDAO = async (isSubDAo: boolean, parentDAO: string) => {
   let daoForm = store.getState().daoForm;
-  await initialize();
-  await scanForWallets();
-  let contract = await aeSdk.initializeContract({ aci: DaoRegistryACI, address: CONTRACT_ADDRESS })
+  await connect();
   if (!isSubDAo) {
-    console.log(daoForm.title,
-      daoForm.description,
-      daoForm.percentage,
-      daoForm.open,
-      daoForm.dao_type,
-      daoForm.members.map(member => member.address)
-    );
     const tx = await contract.create_dao(
       daoForm.title,
       daoForm.description,
@@ -154,6 +147,41 @@ const createDAO = async (isSubDAo: boolean, parentDAO: string) => {
   }
 }
 
+const createProposal = async (formValues: {
+  title: string,
+  payment_type: number,
+  description: string,
+  recipients: { address: string, amount: number }[],
+  stopTime?: number
+}) => {
+  let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
+  if (currentDaoAddress) {
+    await connect();
+    if (formValues.payment_type === 1) {
+      const tx = await contract.create_dao(
+        formValues.title,
+        formValues.description,
+        formValues.payment_type,
+        formValues.recipients.map((recipient) => {
+          return [recipient.address, recipient.amount]
+        }),
+        0,
+        0
+      );
+      console.log(tx.decodedResult);
+    }
+  }
+}
+
+const fundDao = async (amount: number) => {
+  if (amount > 0) {
+    await connect();
+    const tx = await contract.fund({amount: amount});
+    console.log(tx.decodedResult);
+
+  }
+}
+
 
 
 export {
@@ -163,5 +191,7 @@ export {
   disconnect,
   getDaos,
   getDaoDetail,
-  createDAO
+  createDAO,
+  createProposal,
+  fundDao
 }

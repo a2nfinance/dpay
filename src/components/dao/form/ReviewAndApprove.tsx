@@ -1,5 +1,6 @@
 import { Button, Divider, Form, Tag, Typography } from "antd";
 import { useAppSelector } from "src/controller/hooks";
+import { createDAO } from "src/core";
 import { formStyle } from "src/theme/layout";
 const { Title } = Typography;
 export const ReviewAndApprove = () => {
@@ -7,6 +8,7 @@ export const ReviewAndApprove = () => {
     const { title, description, members, open, percentage } = useAppSelector(state => state.daoForm)
     const onFinish = (values: any) => {
         console.log('Received values of form:', values);
+        createDAO(false, null);
     }
     return (
         <Form
