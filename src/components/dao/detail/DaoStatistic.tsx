@@ -26,7 +26,7 @@ export const DaoStatistic = () => {
     setOpenSubDao(false);
   };
   const fund = () => {
-    fundDao(0.5);
+    fundDao(1);
   }
   return (
     <Row gutter={6}>

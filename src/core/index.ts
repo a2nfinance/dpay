@@ -1,4 +1,4 @@
-import { AeSdkAepp, Node, walletDetector, BrowserWindowMessageConnection, CompilerHttp } from '@aeternity/aepp-sdk';
+import { AeSdkAepp, Node, walletDetector, BrowserWindowMessageConnection, CompilerHttp, AE_AMOUNT_FORMATS } from '@aeternity/aepp-sdk';
 import { store } from "src/controller/store";
 import { setProps } from 'src/controller/wallet/walletSlice';
 import { DaoRegistryACI, DaoACI } from './aci';
@@ -11,7 +11,8 @@ const COMPILER_URL = process.env.NEXT_PUBLIC_COMPILER_URL;
 
 let aeSdk = null;
 let walletConnected = false;
-let contract = null;
+let daoRegistryContract = null;
+let daoContract = null;
 const initialize = async () => {
   if (aeSdk) return;
   aeSdk = new AeSdkAepp({
@@ -72,7 +73,13 @@ const scanForWallets = async () => {
 const connect = async () => {
   await initialize()
   await scanForWallets()
-  contract = await aeSdk.initializeContract({ aci: DaoRegistryACI, address: CONTRACT_ADDRESS })
+  daoRegistryContract = await aeSdk.initializeContract({ aci: DaoRegistryACI, address: CONTRACT_ADDRESS })
+}
+
+const connectDao = async (daoAddress: string) => {
+  await initialize()
+  await scanForWallets()
+  daoContract = await aeSdk.initializeContract({ aci: DaoACI, address: daoAddress })
 }
 
 const disconnect = async () => {
@@ -123,7 +130,7 @@ const createDAO = async (isSubDAo: boolean, parentDAO: string) => {
   let daoForm = store.getState().daoForm;
   await connect();
   if (!isSubDAo) {
-    const tx = await contract.create_dao(
+    const tx = await daoRegistryContract.create_dao(
       daoForm.title,
       daoForm.description,
       daoForm.percentage,
@@ -134,7 +141,7 @@ const createDAO = async (isSubDAo: boolean, parentDAO: string) => {
     );
     console.log(tx.decodedResult);
   } else {
-    const tx = await contract.create_dao(
+    const tx = await daoRegistryContract.create_dao(
       daoForm.title,
       daoForm.description,
       daoForm.percentage,
@@ -156,9 +163,9 @@ const createProposal = async (formValues: {
 }) => {
   let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
   if (currentDaoAddress) {
-    await connect();
+    await connectDao(currentDaoAddress);
     if (formValues.payment_type === 1) {
-      const tx = await contract.create_dao(
+      const tx = await daoContract.create_dao(
         formValues.title,
         formValues.description,
         formValues.payment_type,
@@ -174,11 +181,15 @@ const createProposal = async (formValues: {
 }
 
 const fundDao = async (amount: number) => {
-  if (amount > 0) {
-    await connect();
-    const tx = await contract.fund({amount: amount});
-    console.log(tx.decodedResult);
+  console.log("go to fundao")
+  let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
+  if (currentDaoAddress) {
+    if (amount > 0) {
+      await connectDao(currentDaoAddress);
+      const tx = await daoContract.fund({ amount: amount, denomination: AE_AMOUNT_FORMATS.AE });
+      console.log(tx.decodedResult);
 
+    }
   }
 }
 

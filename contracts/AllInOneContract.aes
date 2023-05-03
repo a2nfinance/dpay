@@ -43,6 +43,7 @@ contract interface DAOInterface =
     entrypoint get_members: () => list(address)
     payable stateful entrypoint fund : () => unit
     stateful entrypoint execute_proposal: () => int
+    entrypoint get_contract_balance: () => int
     stateful entrypoint add_memmber: (address) => bool
     stateful entrypoint remove_member: (address) => bool
 
@@ -166,10 +167,14 @@ payable contract DAO :  DAOInterface =
         require(Map.size(proposal_voters) > 0, "!size")
 
         let proposal_voters_list = Map.to_list(proposal_voters)
-
-        //proposal_voters_list
         let voted_list = List.filter((a: (address * bool)) => Pair.snd(a) == true, proposal_voters_list)
-        require(List.length(state.members) == List.length(voted_list), "!enough_vote")
+
+        if (state.percentage == 100)
+            //proposal_voters_list
+            require(List.length(state.members) == List.length(voted_list), "!enough_vote")
+        else 
+            require((List.length(voted_list) * 100 / List.length(state.members) >= state.percentage), "!enough_percentage_vote")
+       
 
         if (voted_proposal.proposal_type != 1)
             require(Chain.timestamp >= voted_proposal.start_date, "start_date>block_timestamp")
@@ -201,7 +206,7 @@ payable contract DAO :  DAOInterface =
         switch(list)
             [] => total_tokens_spend
             (address, tokens) :: l' =>
-                require(amount_left >= tokens, "!enough_tokens") // if for some reason amount of tokens is not enough, the recursion will be aborted
+                require(amount_left >= tokens, "!enough_tokens")
                 Chain.spend(address,tokens) 
                 spend_to_many'(l', total_tokens_spend + tokens, amount_left - tokens)
 
@@ -210,7 +215,8 @@ main contract DAORegistry =
     record dao = {
         owner: address,
         title: string,
-        description: string
+        description: string,
+        open: bool
         }
 
     record state = {
@@ -242,7 +248,7 @@ main contract DAORegistry =
             switch(Chain.clone(ref=Address.to_contract(Pair.fst(List.get(0, Map.to_list(state.daos)))), protected=true, new_dao))
                 None => abort("!DAO")
                 Some(created_dao) =>
-                    put(state { daos[created_dao.address] = { owner= Call.caller, title= title, description= description  } })
+                    put(state { daos[created_dao.address] = { owner= Call.caller, title= title, description= description, open= open  } })
 
                     if (Option.is_some(parent_dao))
                         let parent_dao_address = Option.force(parent_dao)
@@ -251,7 +257,7 @@ main contract DAORegistry =
         else             
             let created_dao = Chain.create(new_dao): DAO
 
-            put(state { daos[created_dao.address] = { owner= Call.caller, title= title, description= description  } })
+            put(state { daos[created_dao.address] = { owner= Call.caller, title= title, description= description, open= open  } })
 
             if (Option.is_some(parent_dao))
                 let parent_dao_address = Option.force(parent_dao)

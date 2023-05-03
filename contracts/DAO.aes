@@ -68,6 +68,7 @@ payable contract DAO :  DAOInterface =
           }
 
     stateful entrypoint create_proposal(title: string, description: string, proposal_type: int, recipients: map(address, int), start_date: int, stop_date: int) = 
+        require(state.status == 1, "!dao_active")
         let new_proposal = {
             title= title,
             description= description,
@@ -87,6 +88,7 @@ payable contract DAO :  DAOInterface =
         put(state{proposals[size] = new_proposal})
 
     stateful entrypoint vote(index: int, vote_value: bool) =
+        require(state.status == 1, "!dao_active")
         require(state.proposals[index].status == 1, "!active")
         let is_member = List.contains(Call.caller, state.members)
         require(is_member, "!member")
@@ -110,6 +112,7 @@ payable contract DAO :  DAOInterface =
         state.members
 
     payable stateful entrypoint fund() =
+        require(state.status == 1, "!dao_active")
         // check contributor or member
         let is_member = List.contains(Call.caller, state.members)
         if (is_member)
@@ -118,18 +121,25 @@ payable contract DAO :  DAOInterface =
             put(state{ contributor_fund[Call.caller] = Call.value})    
 
     stateful entrypoint execute_proposal(index: int): int =
+        require(state.status == 1, "!dao_active")
         let is_exist_proposal = Map.member(index, state.proposals)
         require(is_exist_proposal, "!proposal")
 
         let voted_proposal = state.proposals[index]
+        require(voted_proposal.status == 1, "!active")
+
         let proposal_voters = voted_proposal.voters
         require(Map.size(proposal_voters) > 0, "!size")
 
         let proposal_voters_list = Map.to_list(proposal_voters)
-
-        //proposal_voters_list
         let voted_list = List.filter((a: (address * bool)) => Pair.snd(a) == true, proposal_voters_list)
-        require(List.length(state.members) == List.length(voted_list), "!enough_vote")
+
+        if (state.percentage == 100)
+            //proposal_voters_list
+            require(List.length(state.members) == List.length(voted_list), "!enough_vote")
+        else 
+            require((List.length(voted_list) * 100 / List.length(state.members) >= state.percentage), "!enough_percentage_vote")
+       
 
         if (voted_proposal.proposal_type != 1)
             require(Chain.timestamp >= voted_proposal.start_date, "start_date>block_timestamp")
@@ -145,23 +155,41 @@ payable contract DAO :  DAOInterface =
         Contract.balance
 
     stateful entrypoint add_memmber(new_member: address): bool =
+        require(state.status == 1, "!dao_active")
         let is_member = List.contains(new_member, state.members)
         require(!is_member, "Existed")
         put(state {members = new_member::state.members})
         true 
 
     stateful entrypoint remove_member(member: address): bool =
+        require(state.status == 1, "!dao_active")
         let is_member = List.contains(member, state.members)
         require(is_member, "!Existed")
         put(state {members = List.filter((m) => m != member, state.members)})
         true
+    // 1: active, 2: paused, 3: defunctioned    
+    stateful entrypoint change_dao_status(status: int): int = 
+        let status = state.status;
+        if (state.status != 3)
+            put(state{status = status})
+
+    // 1: active, 2: paused, 3: cancelled   
+    stateful entrypoint change_proposal_status(index: int, status: int): int =
+        require(state.status == 1, "!dao_active")
+        let is_exist_proposal = Map.member(index, state.proposals)
+        require(is_exist_proposal, "!proposal")
+        let currentProposal = state.proposals[index]
+        if (!currentProposal.execute_proposal && currentProposal.status != 3)
+            // Change status here
+            put(state{proposals[index] = status})
+
 
     // traverse through list of maps
     stateful function spend_to_many'(list, total_tokens_spend, amount_left) : int = 
         switch(list)
             [] => total_tokens_spend
             (address, tokens) :: l' =>
-                require(amount_left >= tokens, "!enough_tokens") // if for some reason amount of tokens is not enough, the recursion will be aborted
+                require(amount_left >= tokens, "!enough_tokens")
                 Chain.spend(address,tokens) 
                 spend_to_many'(l', total_tokens_spend + tokens, amount_left - tokens)
 
