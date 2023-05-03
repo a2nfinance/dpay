@@ -169,7 +169,7 @@ payable contract DAO :  DAOInterface =
         true
 
     // 1: active, 2: paused, 3: defunctioned    
-    stateful entrypoint change_dao_status(newStatus: int): unit = 
+    stateful entrypoint change_dao_status(newStatus: int): int = 
         require(Call.caller == state.owner, "!dao_owner")
         if (state.status != 3)
             put(state {status= newStatus} )
@@ -177,7 +177,7 @@ payable contract DAO :  DAOInterface =
         0    
 
     // 1: active, 2: paused, 3: cancelled   
-    stateful entrypoint change_proposal_status(index: int, newStatus: int): unit =
+    stateful entrypoint change_proposal_status(index: int, newStatus: int): int =
         require(state.status == 1, "!dao_active")
         let is_exist_proposal = Map.member(index, state.proposals)
         require(is_exist_proposal, "!proposal")
