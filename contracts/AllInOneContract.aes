@@ -46,6 +46,8 @@ contract interface DAOInterface =
     entrypoint get_contract_balance: () => int
     stateful entrypoint add_memmber: (address) => bool
     stateful entrypoint remove_member: (address) => bool
+    stateful entrypoint change_dao_status: (int) => int
+    stateful entrypoint change_proposal_status: (int, int) => int
 
 payable contract DAO :  DAOInterface = 
 
@@ -109,6 +111,7 @@ payable contract DAO :  DAOInterface =
           }
 
     stateful entrypoint create_proposal(title: string, description: string, proposal_type: int, recipients: map(address, int), start_date: int, stop_date: int) = 
+        require(state.status == 1, "!dao_active")
         let new_proposal = {
             title= title,
             description= description,
@@ -128,6 +131,7 @@ payable contract DAO :  DAOInterface =
         put(state{proposals[size] = new_proposal})
 
     stateful entrypoint vote(index: int, vote_value: bool) =
+        require(state.status == 1, "!dao_active")
         require(state.proposals[index].status == 1, "!active")
         let is_member = List.contains(Call.caller, state.members)
         require(is_member, "!member")
@@ -151,6 +155,7 @@ payable contract DAO :  DAOInterface =
         state.members
 
     payable stateful entrypoint fund() =
+        require(state.status == 1, "!dao_active")
         // check contributor or member
         let is_member = List.contains(Call.caller, state.members)
         if (is_member)
@@ -159,10 +164,13 @@ payable contract DAO :  DAOInterface =
             put(state{ contributor_fund[Call.caller] = Call.value})    
 
     stateful entrypoint execute_proposal(index: int): int =
+        require(state.status == 1, "!dao_active")
         let is_exist_proposal = Map.member(index, state.proposals)
         require(is_exist_proposal, "!proposal")
 
         let voted_proposal = state.proposals[index]
+        require(voted_proposal.status == 1, "!active")
+
         let proposal_voters = voted_proposal.voters
         require(Map.size(proposal_voters) > 0, "!size")
 
@@ -190,16 +198,44 @@ payable contract DAO :  DAOInterface =
         Contract.balance
 
     stateful entrypoint add_memmber(new_member: address): bool =
+        require(state.status == 1, "!dao_active")
         let is_member = List.contains(new_member, state.members)
         require(!is_member, "Existed")
         put(state {members = new_member::state.members})
         true 
 
     stateful entrypoint remove_member(member: address): bool =
+        require(state.status == 1, "!dao_active")
         let is_member = List.contains(member, state.members)
         require(is_member, "!Existed")
         put(state {members = List.filter((m) => m != member, state.members)})
         true
+
+    // 1: active, 2: paused, 3: defunctioned    
+    stateful entrypoint change_dao_status(newStatus: int): int = 
+        require(Call.caller == state.owner, "!dao_owner")
+        if (state.status != 3)
+            put(state {status= newStatus} )
+            newStatus
+        else     
+            0    
+
+    // 1: active, 2: paused, 3: cancelled   
+    stateful entrypoint change_proposal_status(index: int, newStatus: int): int =
+        require(state.status == 1, "!dao_active")
+        let is_exist_proposal = Map.member(index, state.proposals)
+        require(is_exist_proposal, "!proposal")
+        let currentProposal = state.proposals[index]
+
+        require(Call.caller == currentProposal.creator, "!proposal_creator")
+
+        if (!currentProposal.executed && currentProposal.status != 3)
+            // Change status here
+            put(state{proposals[index].status = newStatus})
+            newStatus
+        else     
+            0    
+
 
     // traverse through list of maps
     stateful function spend_to_many'(list, total_tokens_spend, amount_left) : int = 

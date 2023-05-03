@@ -167,21 +167,29 @@ payable contract DAO :  DAOInterface =
         require(is_member, "!Existed")
         put(state {members = List.filter((m) => m != member, state.members)})
         true
+
     // 1: active, 2: paused, 3: defunctioned    
-    stateful entrypoint change_dao_status(status: int): int = 
-        let status = state.status;
+    stateful entrypoint change_dao_status(newStatus: int): unit = 
+        require(Call.caller == state.owner, "!dao_owner")
         if (state.status != 3)
-            put(state{status = status})
+            put(state {status= newStatus} )
+            newStatus
+        0    
 
     // 1: active, 2: paused, 3: cancelled   
-    stateful entrypoint change_proposal_status(index: int, status: int): int =
+    stateful entrypoint change_proposal_status(index: int, newStatus: int): unit =
         require(state.status == 1, "!dao_active")
         let is_exist_proposal = Map.member(index, state.proposals)
         require(is_exist_proposal, "!proposal")
         let currentProposal = state.proposals[index]
-        if (!currentProposal.execute_proposal && currentProposal.status != 3)
+
+        require(Call.caller == currentProposal.creator, "!proposal_creator")
+
+        if (!currentProposal.executed && currentProposal.status != 3)
             // Change status here
-            put(state{proposals[index] = status})
+            put(state{proposals[index].status = newStatus})
+            newStatus
+        0       
 
 
     // traverse through list of maps
