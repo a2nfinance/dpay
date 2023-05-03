@@ -174,7 +174,8 @@ payable contract DAO :  DAOInterface =
         if (state.status != 3)
             put(state {status= newStatus} )
             newStatus
-        0    
+        else    
+            0    
 
     // 1: active, 2: paused, 3: cancelled   
     stateful entrypoint change_proposal_status(index: int, newStatus: int): int =
@@ -189,7 +190,8 @@ payable contract DAO :  DAOInterface =
             // Change status here
             put(state{proposals[index].status = newStatus})
             newStatus
-        0       
+        else    
+            0        
 
 
     // traverse through list of maps
