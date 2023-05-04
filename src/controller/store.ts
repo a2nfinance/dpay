@@ -5,6 +5,7 @@ import walletReducer from "src/controller/wallet/walletSlice";
 import daoReducer from "src/controller/dao/daoSlice";
 import daoDetailReducer from "src/controller/dao/daoDetailSlice";
 import daoFormReducer from "src/controller/dao/daoFormSlice";
+import subDaoFormReducer from './dao/subDaoFormSlice';
 import processReducer from "src/controller/process/processSlice";
 // const persistConfig = {
 //     key: 'wallet',
@@ -19,7 +20,8 @@ export function makeStore() {
             dao: daoReducer,
             process: processReducer,
             daoDetail: daoDetailReducer,
-            daoForm: daoFormReducer
+            daoForm: daoFormReducer,
+            subDaoForm: subDaoFormReducer
         },
         middleware: (getDefaultMiddleware) =>
             getDefaultMiddleware({

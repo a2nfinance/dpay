@@ -137,6 +137,10 @@ export const DaoRegistryACI = [{
             {
               "name": "description",
               "type": "string"
+            },
+            {
+              "name": "open",
+              "type": "bool"
             }
           ]
         },
@@ -334,6 +338,34 @@ export const DaoACI = [{
         "name": "remove_member",
         "payable": false,
         "returns": "bool",
+        "stateful": true
+      },
+      {
+        "arguments": [
+          {
+            "name": "newStatus",
+            "type": "int"
+          }
+        ],
+        "name": "change_dao_status",
+        "payable": false,
+        "returns": "int",
+        "stateful": true
+      },
+      {
+        "arguments": [
+          {
+            "name": "index",
+            "type": "int"
+          },
+          {
+            "name": "newStatus",
+            "type": "int"
+          }
+        ],
+        "name": "change_proposal_status",
+        "payable": false,
+        "returns": "int",
         "stateful": true
       }
     ],

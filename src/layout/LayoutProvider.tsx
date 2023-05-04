@@ -1,18 +1,22 @@
 import React, { useState } from "react";
 import {
+    HomeOutlined,
     MenuFoldOutlined,
     MenuUnfoldOutlined,
+    TeamOutlined,
     UploadOutlined,
     UserOutlined,
     VideoCameraOutlined,
+    
 } from '@ant-design/icons';
 
 import { Layout, Menu, Button, theme, Input, Space, Affix, Form } from 'antd';
 
 import { useRouter } from "next/router";
 import { ConnectButton } from "src/components/common/ConnectButton";
+import Image from "next/image";
 
-const { Header, Sider, Content } = Layout;
+const { Header, Sider, Content, Footer } = Layout;
 
 interface Props {
     children: React.ReactNode | React.ReactNode[];
@@ -28,9 +32,11 @@ export const LayoutProvider = (props: Props) => {
     const onSearch = (value: string) => console.log(value);
 
     return (
-        <Layout>
+        <Layout style={{ minHeight: '100vh' }}> 
             <Sider trigger={null} collapsible collapsed={collapsed}>
-                <div className="logo" />
+                <div style={{ height: 50, margin: 16}}>
+                    <Image src={"/dpay.png"} alt="dpay" width={160} height={50} />
+                </div>
 
                 <Menu
                     theme="dark"
@@ -41,23 +47,23 @@ export const LayoutProvider = (props: Props) => {
                         {
                             key: '1',
                             //@ts-ignore
-                            icon: <UserOutlined />,
+                            icon: <HomeOutlined />,
                             label: 'Home',
                             onClick: () => router.push("/")
                         },
                         {
                             key: '2',
                             //@ts-ignore
-                            icon: <VideoCameraOutlined />,
+                            icon: <TeamOutlined />,
                             label: 'New Dao',
                             onClick: () => router.push("/dao/new")
                         },
-                        {
-                            key: '3',
-                            //@ts-ignore
-                            icon: <UploadOutlined />,
-                            label: 'nav 3',
-                        },
+                        // {
+                        //     key: '3',
+                        //     //@ts-ignore
+                        //     icon: <UploadOutlined />,
+                        //     label: 'nav 3',
+                        // },
                     ]}
                 />
 
@@ -66,7 +72,7 @@ export const LayoutProvider = (props: Props) => {
 
                 <Header //@ts-ignore
                     style={{ padding: 0, background: colorBgContainer }}>
-                    <Space align="center" style={{display: "flex", justifyContent: "space-between"}}>
+                    <Space align="center" style={{ display: "flex", justifyContent: "space-between" }}>
                         <Button
                             type="text"
                             icon={collapsed ?
@@ -104,13 +110,13 @@ export const LayoutProvider = (props: Props) => {
                     style={{
                         margin: '24px 16px',
                         padding: 24,
-                        height: "100vh",
                         boxSizing: "border-box",
                         background: colorBgContainer,
                     }}
                 >
                     {props.children}
                 </Content>
+                <Footer style={{ textAlign: 'center' }}>DPAY ©2023 Created by A2N Finance</Footer>
             </Layout>
         </Layout>
     )

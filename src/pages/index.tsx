@@ -3,9 +3,9 @@ import { Filter } from "src/components/dao/Filter";
 
 export default function Index() {
     return (
-        <>
-            <Filter />
+        <div style={{padding: "0 150px"}}>
+            {/* <Filter /> */}
             <DAOItems />
-        </>
+        </div>
     )
 }

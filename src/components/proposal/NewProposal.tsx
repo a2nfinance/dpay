@@ -27,7 +27,7 @@ export const NewProposal = () => {
                     <Radio.Group onChange={(e) => setPaymentType(e.target.value)}>
                         <Radio value={1}>Instant Payment</Radio>
                         <Radio value={2}>Locked Time Payment</Radio>
-                        <Radio value={3}>Crypto Streaming</Radio>
+                        <Radio value={3} disabled>Crypto Streaming (coming soon)</Radio>
                     </Radio.Group>
                 </Form.Item>
                 <Space wrap>
@@ -38,11 +38,9 @@ export const NewProposal = () => {
                         <Input disabled={paymentType !== 3} type="datetime-local" />
                     </Form.Item>
                 </Space>
-                {
-                    paymentType === 1 && <p>When a proposal is executed, all payouts are sent</p>
-                }
-                {paymentType === 2 && <p>A proposal can be executed when start time is reached, all payouts are sent.</p>}
-                {paymentType == 3 && <p>Token amount will be released every second. Recipient or Member can executed the proposal multitime, each calculated amount of token will be sent to each recipient </p>}
+                <p><strong>Instant Payment:</strong> When a proposal is executed, all payouts are sent</p>
+                <p><strong>Locked Time Payment:</strong> A proposal can be executed when start time is reached, all payouts are sent.</p>
+                <p><strong>Crypto Streaming:</strong> Token amount will be released every second. Recipient or Member can executed the proposal multitime, each calculated amount of token will be sent to each recipient </p>
             </Card>
             <Divider />
             <Card size="small" title="Recipients">

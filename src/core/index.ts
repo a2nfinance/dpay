@@ -73,14 +73,32 @@ const scanForWallets = async () => {
 const connect = async () => {
   await initialize()
   await scanForWallets()
-  daoRegistryContract = await aeSdk.initializeContract({ aci: DaoRegistryACI, address: CONTRACT_ADDRESS })
+  if (!daoRegistryContract) {
+    daoRegistryContract = await aeSdk.initializeContract({ aci: DaoRegistryACI, address: CONTRACT_ADDRESS })
+  }
+}
+
+const initReadDaoRegistryContract = async () => {
+  await initialize()
+  if (!daoRegistryContract) {
+    daoRegistryContract = await aeSdk.initializeContract({ aci: DaoRegistryACI, address: CONTRACT_ADDRESS })
+  }
 }
 
 const connectDao = async (daoAddress: string) => {
   await initialize()
   await scanForWallets()
+  if (!daoContract) {
+    daoContract = await aeSdk.initializeContract({ aci: DaoACI, address: daoAddress })
+  }
+
+}
+
+const initReadDaoContract = async (daoAddress: string) => {
+  await initialize()
   daoContract = await aeSdk.initializeContract({ aci: DaoACI, address: daoAddress })
 }
+
 
 const disconnect = async () => {
   await aeSdk.disconnectWallet()
@@ -94,9 +112,9 @@ const disconnect = async () => {
 
 const getDaos = async () => {
   try {
-    await initialize();
-    let contract = await aeSdk.initializeContract({ aci: DaoRegistryACI, address: CONTRACT_ADDRESS })
-    const tx = await contract.get_daos();
+    await initReadDaoRegistryContract();
+    const tx = await daoRegistryContract.get_daos();
+    console.log(tx.decodedResult);
     store.dispatch(setDaoProps({ att: "daos", value: tx.decodedResult }))
   } catch (e) {
     console.error(e)
@@ -107,9 +125,8 @@ const getDaos = async () => {
 const getDaoDetail = async (address: string) => {
   try {
     store.dispatch(setDaoDetailProps({ att: "currentDaoAddress", value: address }))
-    await initialize();
-    let contract = await aeSdk.initializeContract({ aci: DaoACI, address: address })
-    const tx = await contract.get();
+    await initReadDaoContract(address);
+    const tx = await daoContract.get();
     //const tx = await contract.create_dao("hello", "hello", [], null);
     console.log(tx.decodedResult);
     store.dispatch(setDaoDetailProps({ att: "daos", value: tx.decodedResult }))
@@ -117,13 +134,6 @@ const getDaoDetail = async (address: string) => {
     console.error(e)
   }
 
-}
-
-const transfer = async () => {
-  let returnValue = await aeSdk.spend(1, "ak_2JCYGyR1aqXuzHV35m5fnbKagmEQrgwwLnLaxCgUpT59VBjs55", { denomination: 'ae' });
-  console.log(returnValue);
-  console.log(returnValue.hash);
-  return returnValue.hash;
 }
 
 const createDAO = async (isSubDAo: boolean, parentDAO: string) => {
@@ -159,29 +169,44 @@ const createProposal = async (formValues: {
   payment_type: number,
   description: string,
   recipients: { address: string, amount: number }[],
+  startTime?: number,
   stopTime?: number
 }) => {
   let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
   if (currentDaoAddress) {
     await connectDao(currentDaoAddress);
-    if (formValues.payment_type === 1) {
-      const tx = await daoContract.create_dao(
-        formValues.title,
-        formValues.description,
-        formValues.payment_type,
-        formValues.recipients.map((recipient) => {
-          return [recipient.address, recipient.amount]
-        }),
-        0,
-        0
-      );
-      console.log(tx.decodedResult);
+    let startTime = 0;
+    let stopTime = 0;
+    if (formValues.payment_type === 2) {
+
+      startTime = new Date(formValues.startTime).getTime();
+    } else if (formValues.payment_type === 3) {
+      startTime = new Date(formValues.startTime).getTime();
+      stopTime = new Date(formValues.stopTime).getTime();
     }
+    console.log(formValues.title,
+      formValues.description,
+      formValues.payment_type,
+      formValues.recipients.map((recipient) => {
+        return [recipient.address, recipient.amount]
+      }),
+      startTime,
+      stopTime)
+    const tx = await daoContract.create_proposal(
+      formValues.title,
+      formValues.description,
+      formValues.payment_type,
+      formValues.recipients.map((recipient) => {
+        return [recipient.address, recipient.amount]
+      }),
+      startTime,
+      stopTime
+    );
+    console.log(tx.decodedResult);
   }
 }
 
 const fundDao = async (amount: number) => {
-  console.log("go to fundao")
   let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
   if (currentDaoAddress) {
     if (amount > 0) {
@@ -193,16 +218,131 @@ const fundDao = async (amount: number) => {
   }
 }
 
+const getDaoProposals = async () => {
+  let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
+  if (currentDaoAddress) {
 
+    await initReadDaoContract(currentDaoAddress);
+    const tx = await daoContract.get_proposals();
+    console.log(tx.decodedResult);
+
+    store.dispatch(setDaoDetailProps({ att: "proposals", value: tx.decodedResult }))
+
+  }
+}
+
+
+const getMemberFund = async () => {
+  let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
+  if (currentDaoAddress) {
+
+    await initReadDaoContract(currentDaoAddress);
+    const tx = await daoContract.get_member_fund();
+    console.log(tx.decodedResult);
+
+    store.dispatch(setDaoDetailProps({ att: "member_fund", value: tx.decodedResult }))
+
+  }
+}
+
+
+const getContributorFund = async () => {
+  let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
+  if (currentDaoAddress) {
+
+    await initReadDaoContract(currentDaoAddress);
+    const tx = await daoContract.get_contributor_fund();
+    console.log(tx.decodedResult);
+
+    store.dispatch(setDaoDetailProps({ att: "contributor_fund", value: tx.decodedResult }))
+
+  }
+}
+
+
+const getMembers = async () => {
+  let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
+  if (currentDaoAddress) {
+
+    await initReadDaoContract(currentDaoAddress);
+    const tx = await daoContract.get_members();
+    console.log(tx.decodedResult);
+
+    store.dispatch(setDaoDetailProps({ att: "members", value: tx.decodedResult }))
+
+  }
+}
+
+const addMember = async (address: string) => {
+  let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
+  if (currentDaoAddress) {
+
+    await connectDao(currentDaoAddress);
+    const tx = await daoContract.add_member(address);
+    console.log(tx.decodedResult);
+
+  }
+}
+
+const removeMember = async (address: string) => {
+  let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
+  if (currentDaoAddress) {
+
+    await connectDao(currentDaoAddress);
+    const tx = await daoContract.remove_member(address);
+    console.log(tx.decodedResult);
+
+  }
+}
+
+const updateDaoStatus = async (status: number) => {
+  let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
+  if (currentDaoAddress) {
+
+    await connectDao(currentDaoAddress);
+    const tx = await daoContract.change_dao_status(status);
+    console.log(tx.decodedResult);
+
+  }
+}
+
+const updateProposalStatus = async (index: number, status: number) => {
+  let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
+  if (currentDaoAddress) {
+
+    await connectDao(currentDaoAddress);
+    const tx = await daoContract.change_proposal_status(index, status);
+    console.log(tx.decodedResult);
+
+  }
+}
+
+const executeProposal = async (index: number) => {
+  let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
+  if (currentDaoAddress) {
+
+    await connectDao(currentDaoAddress);
+    const tx = await daoContract.execute_proposal(index);
+    console.log(tx.decodedResult);
+
+  }
+}
 
 export {
   aeSdk,
-  transfer,
   connect,
   disconnect,
   getDaos,
   getDaoDetail,
   createDAO,
   createProposal,
-  fundDao
+  fundDao,
+  getDaoProposals,
+  getContributorFund,
+  getMembers,
+  addMember,
+  removeMember,
+  updateDaoStatus,
+  updateProposalStatus,
+  executeProposal
 }

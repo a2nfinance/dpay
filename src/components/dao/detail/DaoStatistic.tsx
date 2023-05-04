@@ -3,6 +3,7 @@ import { useState } from 'react';
 import CountUp from 'react-countup';
 import { NewProposal } from 'src/components/proposal/NewProposal';
 import { fundDao } from 'src/core';
+import { NewSubDao } from '../NewSubDao';
 const formatter = (value: number) => <CountUp end={value} separator="," />;
 export const DaoStatistic = () => {
   const [open, setOpen] = useState(false);
@@ -55,7 +56,7 @@ export const DaoStatistic = () => {
         <NewProposal />
       </Drawer>
       <Drawer title="New SubDao" size="large" placement="right" onClose={onCloseSubDao} open={openSubDao}>
-        <NewProposal />
+        <NewSubDao />
       </Drawer>
     </Row>
   )
