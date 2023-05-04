@@ -1,6 +1,7 @@
 @compiler >= 7
 include "String.aes"
 include "List.aes"
+include "Map.aes"
 include "./interfaces/DAOInterface.aes"
 include "DAO.aes"
 include "Pair.aes"
@@ -63,10 +64,9 @@ main contract DAORegistry =
         Map.to_list(state.daos)
     
     entrypoint get_sub_daos_of(parent_dao: address): list(address * dao) = 
+        let is_exist_sub_dao = Map.member(parent_dao, state.sub_daos);
 
-        let sub_daos_list = state.sub_daos[parent_dao]
-
-        if (List.length(sub_daos_list) > 0)
+        if (is_exist_sub_dao)
             let sub_daos = List.filter((d: (address * dao)) => List.contains(Pair.fst(d), sub_daos_list), Map.to_list(state.daos))
             sub_daos
         else

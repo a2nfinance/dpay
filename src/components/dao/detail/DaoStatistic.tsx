@@ -1,4 +1,4 @@
-import { Button, Col, Drawer, Row, Space, Statistic } from 'antd';
+import { Button, Col, Divider, Drawer, Input, Popover, Row, Space, Statistic } from 'antd';
 import { useState } from 'react';
 import CountUp from 'react-countup';
 import { NewProposal } from 'src/components/proposal/NewProposal';
@@ -6,6 +6,16 @@ import { fundDao } from 'src/core';
 import { NewSubDao } from '../NewSubDao';
 const formatter = (value: number) => <CountUp end={value} separator="," />;
 export const DaoStatistic = () => {
+  const [openFundPopup, setOpenFundPopup] = useState(false);
+
+  const hideOpenFundPopup = () => {
+    setOpenFundPopup(false);
+  };
+
+  const handleOpenFundPopupChange = (newOpen: boolean) => {
+    setOpenFundPopup(newOpen);
+  };
+
   const [open, setOpen] = useState(false);
 
   const showDrawer = () => {
@@ -48,7 +58,21 @@ export const DaoStatistic = () => {
         <Space direction="horizontal">
           <Button onClick={showDrawerSubDao}>New SubDao</Button>
           <Button onClick={showDrawer}>New Proposal</Button>
-          <Button onClick={fund}>Fund Dao</Button>
+          <Popover
+            content={
+              <>
+                <Input name='amount' type='number' />
+                <Divider />
+                <Button type='primary'>Send</Button>
+              </>
+            }
+            title="Amount"
+            trigger="click"
+            open={openFundPopup}
+            onOpenChange={handleOpenFundPopupChange}
+          >
+            <Button type="primary">Send Fund</Button>
+          </Popover>
         </Space>
 
       </Col>

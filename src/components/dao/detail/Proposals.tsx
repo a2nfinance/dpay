@@ -1,11 +1,14 @@
 
 import { Button, Card, Drawer, Space, Table, Tag } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Details } from "src/components/proposal/Detail";
 import { NewProposal } from "src/components/proposal/NewProposal";
+import { useAppSelector } from "src/controller/hooks";
+import { getDaoProposals } from "src/core";
 
 export const Proposals = () => {
     
+    const {proposals, currentDaoAddress} = useAppSelector(state => state.daoDetail);
 
     const [openDetail, setOpenDetail] = useState(false);
 
@@ -79,7 +82,9 @@ export const Proposals = () => {
     ];
 
 
-
+    useEffect(() => {
+        getDaoProposals()
+    }, [currentDaoAddress])
 
     return (
         <>

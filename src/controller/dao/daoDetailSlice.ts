@@ -14,10 +14,13 @@ export type Proposal = {
     },
     executed: boolean
 }
-export type DAO = {
+type SimpleDaoData = {
     owner : string,
     title : string,
     description : string,
+}
+type DaoState = {
+    simpleData: SimpleDaoData,
     members : string[],
     proposals: {
         [key: number]: Proposal
@@ -28,18 +31,22 @@ export type DAO = {
     contributor_fund: {
         [key: string]: number
     },
-} 
-
-type DaoState = {
+    subDaos: {owner: string, title: string, description: string}[],
     isLoadingDao: boolean,
     currentDaoAddress: string
-    dao: DAO
+    
 }
 
 const initialState: DaoState = {
+    simpleData: null,
+    members: [],
+    proposals: {},
+    member_fund: {},
+    contributor_fund: {},
     isLoadingDao: false,
-    dao: null,
-    currentDaoAddress: null
+    currentDaoAddress: null,
+    subDaos: [],
+
 }
 
 export const daoDetailSlice = createSlice({

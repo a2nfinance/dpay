@@ -69,7 +69,9 @@ const scanForWallets = async () => {
     const stopScan = walletDetector(scannerConnection, handleWallets)
   }
 }
-
+const convertCtToAk = (address: string) => {
+  return address.replace("ct", "ak");
+}
 const connect = async () => {
   await initialize()
   await scanForWallets()
@@ -122,6 +124,21 @@ const getDaos = async () => {
 
 }
 
+const getSubDaosOf = async () => {
+  try {
+    let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
+    if (currentDaoAddress) {
+      await initReadDaoRegistryContract();
+      const tx = await daoRegistryContract.get_sub_daos_of(convertCtToAk(currentDaoAddress));
+      console.log(tx.decodedResult);
+      store.dispatch(setDaoDetailProps({ att: "sub_daos", value: tx.decodedResult }))
+    }
+   
+  } catch (e) {
+    console.error(e)
+  }
+}
+
 const getDaoDetail = async (address: string) => {
   try {
     store.dispatch(setDaoDetailProps({ att: "currentDaoAddress", value: address }))
@@ -129,7 +146,7 @@ const getDaoDetail = async (address: string) => {
     const tx = await daoContract.get();
     //const tx = await contract.create_dao("hello", "hello", [], null);
     console.log(tx.decodedResult);
-    store.dispatch(setDaoDetailProps({ att: "daos", value: tx.decodedResult }))
+    store.dispatch(setDaoDetailProps({ att: "simpleData", value: tx.decodedResult }))
   } catch (e) {
     console.error(e)
   }
@@ -335,9 +352,11 @@ export {
   getDaos,
   getDaoDetail,
   createDAO,
+  getSubDaosOf,
   createProposal,
   fundDao,
   getDaoProposals,
+  getMemberFund,
   getContributorFund,
   getMembers,
   addMember,

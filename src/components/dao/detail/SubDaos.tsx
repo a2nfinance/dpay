@@ -1,6 +1,10 @@
 import { Table } from "antd";
+import { useEffect } from "react";
+import { useAppSelector } from "src/controller/hooks";
+import { getSubDaosOf } from "src/core";
 
 export const SubDaos = () => {
+    const {subDaos, currentDaoAddress} = useAppSelector(state => state.daoDetail)
     const dataSource = [
         {
             key: '1',
@@ -47,6 +51,10 @@ export const SubDaos = () => {
             key: 'percentage',
         }
     ];
+
+    useEffect(() => {
+        getSubDaosOf()
+    }, [currentDaoAddress])
     return (
         <Table dataSource={dataSource} columns={columns} />
     )
