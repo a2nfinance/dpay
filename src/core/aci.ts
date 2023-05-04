@@ -141,6 +141,10 @@ export const DaoRegistryACI = [{
             {
               "name": "open",
               "type": "bool"
+            },
+            {
+              "name": "dao_type",
+              "type": "int"
             }
           ]
         },
