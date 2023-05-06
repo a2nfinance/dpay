@@ -116,9 +116,9 @@ payable contract DAO :  DAOInterface =
         // check contributor or member
         let is_member = List.contains(Call.caller, state.members)
         if (is_member)
-            put(state{ member_fund[Call.caller] = Call.value})
+            put(state{ member_fund[Call.caller] = state.member_fund[Call.caller] + Call.value})
         else 
-            put(state{ contributor_fund[Call.caller] = Call.value})    
+            put(state{ contributor_fund[Call.caller] = state.member_fund[Call.caller] + Call.value})     
 
     stateful entrypoint execute_proposal(index: int): int =
         require(state.status == 1, "!dao_active")
@@ -154,7 +154,7 @@ payable contract DAO :  DAOInterface =
     entrypoint get_contract_balance(): int =
         Contract.balance
 
-    stateful entrypoint add_memmber(new_member: address): bool =
+    stateful entrypoint add_member(new_member: address): bool =
         require(state.status == 1, "!dao_active")
         let is_member = List.contains(new_member, state.members)
         require(!is_member, "Existed")

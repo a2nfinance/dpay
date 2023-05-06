@@ -18,6 +18,13 @@ type SimpleDaoData = {
     owner : string,
     title : string,
     description : string,
+    member_length: number,
+    proposal_length: number,
+    percentage: number,
+    status: number,
+    open: boolean,
+    dao_type: number,
+    balance: number
 }
 type DaoState = {
     simpleData: SimpleDaoData,
@@ -38,7 +45,18 @@ type DaoState = {
 }
 
 const initialState: DaoState = {
-    simpleData: null,
+    simpleData: {
+        owner : "",
+        title : "",
+        description : "",
+        member_length: 0,
+        proposal_length: 0,
+        percentage: 0,
+        status: 0,
+        open: false,
+        dao_type: 1,
+        balance: 0
+    },
     members: [],
     proposals: {},
     member_fund: {},

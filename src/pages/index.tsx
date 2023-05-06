@@ -3,7 +3,7 @@ import { Filter } from "src/components/dao/Filter";
 
 export default function Index() {
     return (
-        <div style={{padding: "0 150px"}}>
+        <div>
             {/* <Filter /> */}
             <DAOItems />
         </div>

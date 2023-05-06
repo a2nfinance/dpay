@@ -4,22 +4,77 @@ import { setProps } from 'src/controller/wallet/walletSlice';
 import { DaoRegistryACI, DaoACI } from './aci';
 import { setDaoProps } from 'src/controller/dao/daoSlice';
 import { setDaoDetailProps } from 'src/controller/dao/daoDetailSlice';
+
+import { notification } from 'antd';
+import { actionNames, processKeys, updateProcessStatus } from 'src/controller/process/processSlice';
+
+const NETWORK_TYPE = process.env.NEXT_PUBLIC_NETWORK_TYPE;
 const TESTNET_NODE_URL = process.env.NEXT_PUBLIC_TESTNET_NODE_URL;
 const MAINNET_NODE_URL = process.env.NEXT_PUBLIC_MAINNET_NODE_URL;
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_DAO_REGISTRY_ADDRESS;
 const COMPILER_URL = process.env.NEXT_PUBLIC_COMPILER_URL;
 
+
+let node = (NETWORK_TYPE === "testnet" ? { name: 'testnet', instance: new Node(TESTNET_NODE_URL) } : { name: 'mainnet', instance: new Node(MAINNET_NODE_URL) });
+
 let aeSdk = null;
 let walletConnected = false;
 let daoRegistryContract = null;
 let daoContract = null;
+/**
+ * 
+ * @param title 
+ * @param description 
+ * @param messageType success, error, info, warning, open, destroy
+ * @param fn 
+ */
+const MESSAGE_TYPE = {
+  SUCCESS: "success",
+  ERROR: "error",
+  INFO: "INFO",
+  WARNING: "warning",
+  OPEN: "open",
+  DESTROY: "destroy"
+}
+const openNotification = (title: string, description: string, messageType: string, fn?: () => void) => {
+  let config = {
+    message: title,
+    description: description,
+    onClick: () => {
+      fn()
+    }
+  }
+
+  switch (messageType) {
+    case MESSAGE_TYPE.OPEN:
+      notification.open(config);
+      break;
+    case MESSAGE_TYPE.INFO:
+      notification.info(config);
+      break;
+    case MESSAGE_TYPE.SUCCESS:
+      notification.success(config);
+      break;
+    case MESSAGE_TYPE.ERROR:
+      notification.error(config);
+      break;
+    case MESSAGE_TYPE.WARNING:
+      notification.warning(config);
+      break;
+    default:
+      notification.open(config);
+      break;
+  }
+
+
+};
+
 const initialize = async () => {
   if (aeSdk) return;
   aeSdk = new AeSdkAepp({
     name: 'DPAY',
     nodes: [
-      { name: 'testnet', instance: new Node(TESTNET_NODE_URL) },
-      { name: 'mainnet', instance: new Node(MAINNET_NODE_URL) },
+      node
     ],
     onCompiler: new CompilerHttp(COMPILER_URL),
     onNetworkChange: async ({ networkId }) => {
@@ -39,7 +94,7 @@ const initialize = async () => {
       }))
     }
     ,
-    onDisconnect: () => alert('Aepp is disconnected')
+    onDisconnect: () => openNotification("Disconnected", "Disconnected from Hero Wallet", "warning", () => { })
   });
   store.dispatch(setProps({
     att: "ready",
@@ -109,7 +164,6 @@ const disconnect = async () => {
     value: ""
   }))
   walletConnected = false
-  //if (this.reverseIframe) this.reverseIframe.remove()
 }
 
 const getDaos = async () => {
@@ -133,7 +187,7 @@ const getSubDaosOf = async () => {
       console.log(tx.decodedResult);
       store.dispatch(setDaoDetailProps({ att: "sub_daos", value: tx.decodedResult }))
     }
-   
+
   } catch (e) {
     console.error(e)
   }
@@ -156,29 +210,55 @@ const getDaoDetail = async (address: string) => {
 const createDAO = async (isSubDAo: boolean, parentDAO: string) => {
   let daoForm = store.getState().daoForm;
   await connect();
-  if (!isSubDAo) {
+  const tx = await daoRegistryContract.create_dao(
+    daoForm.title,
+    daoForm.description,
+    daoForm.percentage,
+    daoForm.open,
+    daoForm.dao_type,
+    daoForm.members.map(member => member.address),
+    null
+  );
+
+}
+
+
+const createSubDAO = async () => {
+  try {
+    let {currentDaoAddress, simpleData} = store.getState().daoDetail;
+    let {title, description, members} = store.getState().subDaoForm;
+    store.dispatch(updateProcessStatus({
+      actionName: actionNames.createSubDao,
+      att: processKeys.processing,
+      value: true
+    }))
+    await connect();
+    console.log( title,
+      description,
+      simpleData.percentage,
+      simpleData.open,
+      simpleData.dao_type,
+      members,
+      convertCtToAk(currentDaoAddress))
     const tx = await daoRegistryContract.create_dao(
-      daoForm.title,
-      daoForm.description,
-      daoForm.percentage,
-      daoForm.open,
-      daoForm.dao_type,
-      daoForm.members.map(member => member.address),
-      null
+      title,
+      description,
+      simpleData.percentage,
+      simpleData.open,
+      simpleData.dao_type,
+      members,
+      convertCtToAk(currentDaoAddress)
     );
-    console.log(tx.decodedResult);
-  } else {
-    const tx = await daoRegistryContract.create_dao(
-      daoForm.title,
-      daoForm.description,
-      daoForm.percentage,
-      daoForm.open,
-      daoForm.dao_type,
-      Object.values(daoForm.members),
-      parentDAO
-    );
-    console.log(tx.decodedResult);
+    openNotification("Create SubDao", `Create SubDao successful`, MESSAGE_TYPE.SUCCESS, () => { })
+  } catch(e) {
+    openNotification("Create SubDao", e.message, MESSAGE_TYPE.ERROR, () => { })
   }
+  store.dispatch(updateProcessStatus({
+    actionName: actionNames.createSubDao,
+    att: processKeys.processing,
+    value: false
+  }))
+
 }
 
 const createProposal = async (formValues: {
@@ -224,15 +304,31 @@ const createProposal = async (formValues: {
 }
 
 const fundDao = async (amount: number) => {
-  let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
-  if (currentDaoAddress) {
-    if (amount > 0) {
-      await connectDao(currentDaoAddress);
-      const tx = await daoContract.fund({ amount: amount, denomination: AE_AMOUNT_FORMATS.AE });
-      console.log(tx.decodedResult);
+  try {
+    let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
+    if (currentDaoAddress) {
+      if (amount > 0) {
+        store.dispatch(updateProcessStatus({
+          actionName: actionNames.addFund,
+          att: processKeys.processing,
+          value: true
+        }))
 
+        await connectDao(currentDaoAddress);
+        const tx = await daoContract.fund({ amount: amount, denomination: AE_AMOUNT_FORMATS.AE });
+        console.log(tx.decodedResult);
+        openNotification("Add Fund", `Add ${amount} AE successful`, MESSAGE_TYPE.SUCCESS, () => { })
+      }
     }
+  } catch (e) {
+    openNotification("Add Fund", e.message, MESSAGE_TYPE.ERROR, () => { })
   }
+
+  store.dispatch(updateProcessStatus({
+    actionName: actionNames.addFund,
+    att: processKeys.processing,
+    value: false
+  }))
 }
 
 const getDaoProposals = async () => {
@@ -291,14 +387,28 @@ const getMembers = async () => {
 }
 
 const addMember = async (address: string) => {
-  let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
-  if (currentDaoAddress) {
-
-    await connectDao(currentDaoAddress);
-    const tx = await daoContract.add_member(address);
-    console.log(tx.decodedResult);
-
+  try {
+    let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
+    if (currentDaoAddress) {
+      store.dispatch(updateProcessStatus({
+        actionName: actionNames.addMember,
+        att: processKeys.processing,
+        value: true
+      }))
+      await connectDao(currentDaoAddress);
+      const tx = await daoContract.add_memmber(address);
+      console.log(tx.decodedResult);
+      openNotification("Add Member", `Add new member "${address}" successful`, MESSAGE_TYPE.SUCCESS, () => { })
+    }
+  } catch (e) {
+    openNotification("Add Member", e.message, MESSAGE_TYPE.ERROR, () => { })
   }
+
+  store.dispatch(updateProcessStatus({
+    actionName: actionNames.addMember,
+    att: processKeys.processing,
+    value: false
+  }))
 }
 
 const removeMember = async (address: string) => {
@@ -352,6 +462,7 @@ export {
   getDaos,
   getDaoDetail,
   createDAO,
+  createSubDAO,
   getSubDaosOf,
   createProposal,
   fundDao,

@@ -1,4 +1,5 @@
 
+import { CopyOutlined } from "@ant-design/icons";
 import { Button, Table, Tag } from "antd";
 import { useEffect } from "react";
 import { useAppSelector } from "src/controller/hooks";
@@ -11,30 +12,21 @@ export const Members = () => {
         "Locked Time": "geekblue",
         "Stream": "purple"
     }
-    const dataSource = [
-        {
-            key: '1',
-            title: 'Mike',
-        },
-        {
-            key: '2',
-            title: 'Mike',
-        },
-    ];
-
+ 
     const columns = [
         {
             title: 'Address',
-            key: 'paymentType',
+            key: 'address',
+            dataIndex: "address",
             render: (_, record) => (
-                <Tag color={colorMap[record.paymentType]}>{record.paymentType}</Tag>
+                <Button icon={<CopyOutlined />}>{record.address}</Button>
             )
         },
         {
             title: 'Actions',
             key: 'actions',
             render: (_, record) => (
-                <Button onClick={() => {}}>Remove</Button>
+                <Button onClick={() => {}} danger>Remove</Button>
             )
 
         },
@@ -47,7 +39,14 @@ export const Members = () => {
 
     return (
         <>
-            <Table dataSource={dataSource} columns={columns} />
+            <Table dataSource={
+                members.map((member, index) => {
+                    return {
+                        key: index,
+                        address: member
+                    }
+                })
+            } columns={columns} />
         </>
     )
 }

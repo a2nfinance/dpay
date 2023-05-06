@@ -34,16 +34,16 @@ export const subDaoFormSlice = createSlice({
                 state.title = payload.title
             if (payload.description)
                 state.description = payload.description
-            if (payload.dao_type)
-                state.dao_type = payload.dao_type
-            if (payload.open === 2)
-                state.open = true
+            // if (payload.dao_type)
+            //     state.dao_type = payload.dao_type
+            // if (payload.open === 2)
+            //     state.open = true
             if (payload.members)
                 state.members = payload.members      
-            if (payload.voting_mode) {
-                state.voting_mode = payload.voting_mode  
-                state.percentage = payload.voting_mode === 1 ? 100 : payload.percentage
-            }
+            // if (payload.voting_mode) {
+            //     state.voting_mode = payload.voting_mode  
+            //     state.percentage = payload.voting_mode === 1 ? 100 : payload.percentage
+            // }
                
         },
     }

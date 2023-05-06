@@ -145,6 +145,10 @@ export const DaoRegistryACI = [{
             {
               "name": "dao_type",
               "type": "int"
+            },
+            {
+              "name": "created_date",
+              "type": "int"
             }
           ]
         },

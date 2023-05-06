@@ -1,11 +1,19 @@
 import { Button, Col, Divider, Drawer, Input, Popover, Row, Space, Statistic } from 'antd';
-import { useState } from 'react';
+import { AE_AMOUNT_FORMATS, formatAmount } from "@aeternity/aepp-sdk";
+import { useCallback, useState } from 'react';
 import CountUp from 'react-countup';
 import { NewProposal } from 'src/components/proposal/NewProposal';
-import { fundDao } from 'src/core';
+import { fundDao, addMember as addMemberAction } from 'src/core';
 import { NewSubDao } from '../NewSubDao';
+import { useAppSelector } from 'src/controller/hooks';
 const formatter = (value: number) => <CountUp end={value} separator="," />;
 export const DaoStatistic = () => {
+  const { simpleData } = useAppSelector(state => state.daoDetail);
+  const {addFund, addMember} = useAppSelector(state => state.process);
+
+  const [fundAmount, setFundAmount] = useState("");
+  const [newMember, setNewMember] = useState("");
+
   const [openFundPopup, setOpenFundPopup] = useState(false);
   const [openAddMemberPopup, setOpenAddMemberPopup] = useState(false);
   const hideOpenFundPopup = () => {
@@ -22,8 +30,6 @@ export const DaoStatistic = () => {
   const handleOpenAddMemberPopupChange = (newOpen: boolean) => {
     setOpenAddMemberPopup(newOpen);
   };
-
-
 
   const [open, setOpen] = useState(false);
 
@@ -45,22 +51,30 @@ export const DaoStatistic = () => {
   const onCloseSubDao = () => {
     setOpenSubDao(false);
   };
-  const fund = () => {
-    fundDao(1);
-  }
+  
+  const fund = useCallback(() => {
+    fundDao(parseFloat(fundAmount));
+  }, [fundAmount])
+
+
+  const doAddMember = useCallback(() => {
+    addMemberAction(newMember);
+  }, [newMember])
+
   return (
     <Row gutter={6}>
       <Col span={4}>
-        <Statistic title="Members" value={100} formatter={formatter} />
+        <Statistic title="Members" value={simpleData.member_length} formatter={formatter} />
       </Col>
       <Col span={4}>
-        <Statistic title="Proposals" value={50} precision={2} formatter={formatter} />
+        <Statistic title="Proposals" value={simpleData.proposal_length} precision={2} formatter={formatter} />
       </Col>
       <Col span={4}>
-        <Statistic title="Treasury" value={1200} precision={2} formatter={formatter} />
+        <Statistic title="Treasury (AE)" value={formatAmount(simpleData.balance, { targetDenomination: AE_AMOUNT_FORMATS.AE })} precision={2}  />
       </Col>
       <Col span={4}>
-        <Statistic title="SubDaos" value={3} precision={2} formatter={formatter} />
+        <p>Status</p>
+        <p>{simpleData.status == 1 ? "Active" : "Inactive"}</p>
       </Col>
       <Col span={8}>
         <p>Actions</p>
@@ -70,9 +84,9 @@ export const DaoStatistic = () => {
           <Popover
             content={
               <>
-                <Input name='adress'/>
+                <Input name='adress' value={newMember} onChange={(e) => setNewMember(e.target.value)}/>
                 <Divider />
-                <Button type='primary'>Add</Button>
+                <Button type='primary' onClick={() => doAddMember()} loading={addMember.processing}>Add</Button>
               </>
             }
             title="Address"
@@ -87,9 +101,10 @@ export const DaoStatistic = () => {
           <Popover
             content={
               <>
-                <Input name='amount' type='number' />
+                
+                <Input name='amount' type='number' value={fundAmount} onChange={(e) => setFundAmount(e.target.value)} />
                 <Divider />
-                <Button type='primary'>Send</Button>
+                <Button type='primary' onClick={() => fund()} loading={addFund.processing}>Send</Button>
               </>
             }
             title="Amount"

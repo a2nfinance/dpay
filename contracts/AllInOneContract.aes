@@ -159,9 +159,9 @@ payable contract DAO :  DAOInterface =
         // check contributor or member
         let is_member = List.contains(Call.caller, state.members)
         if (is_member)
-            put(state{ member_fund[Call.caller] = Call.value})
+            put(state{ member_fund[Call.caller] = state.member_fund[Call.caller] + Call.value})
         else 
-            put(state{ contributor_fund[Call.caller] = Call.value})    
+            put(state{ contributor_fund[Call.caller] = state.member_fund[Call.caller] + Call.value})        
 
     stateful entrypoint execute_proposal(index: int): int =
         require(state.status == 1, "!dao_active")
@@ -253,7 +253,8 @@ main contract DAORegistry =
         title: string,
         description: string,
         open: bool,
-        dao_type: int
+        dao_type: int,
+        created_date: int
         }
 
     record state = {
@@ -285,7 +286,7 @@ main contract DAORegistry =
             switch(Chain.clone(ref=Address.to_contract(Pair.fst(List.get(0, Map.to_list(state.daos)))), protected=true, new_dao))
                 None => abort("!DAO")
                 Some(created_dao) =>
-                    put(state { daos[created_dao.address] = { owner= Call.caller, title= title, description= description, open= open, dao_type=dao_type  } })
+                    put(state { daos[created_dao.address] = { owner= Call.caller, title= title, description= description, open= open, dao_type=dao_type, created_date=Chain.timestamp  } })
 
                     if (Option.is_some(parent_dao))
                         let parent_dao_address = Option.force(parent_dao)
@@ -294,7 +295,7 @@ main contract DAORegistry =
         else             
             let created_dao = Chain.create(new_dao): DAO
 
-            put(state { daos[created_dao.address] = { owner= Call.caller, title= title, description= description, open= open, dao_type=dao_type  } })
+            put(state { daos[created_dao.address] = { owner= Call.caller, title= title, description= description, open= open, dao_type=dao_type, created_date=Chain.timestamp  } })
 
             if (Option.is_some(parent_dao))
                 let parent_dao_address = Option.force(parent_dao)
@@ -305,10 +306,10 @@ main contract DAORegistry =
         Map.to_list(state.daos)
     
     entrypoint get_sub_daos_of(parent_dao: address): list(address * dao) = 
+        let is_exist_sub_dao = Map.member(parent_dao, state.sub_daos)
 
-        let sub_daos_list = state.sub_daos[parent_dao]
-
-        if (List.length(sub_daos_list) > 0)
+        if (is_exist_sub_dao)
+            let sub_daos_list = state.sub_daos[parent_dao]
             let sub_daos = List.filter((d: (address * dao)) => List.contains(Pair.fst(d), sub_daos_list), Map.to_list(state.daos))
             sub_daos
         else

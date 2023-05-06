@@ -1,14 +1,28 @@
-import { Button, Card, Form, Input, Typography } from "antd"
+import { Button, Card, Descriptions, Form, Input, Typography } from "antd";
+import { useEffect } from "react";
+import { convertStepForm } from "src/controller/dao/subDaoFormSlice";
 import { useAppDispatch, useAppSelector } from "src/controller/hooks";
+import { createDAO, createSubDAO as createSubDaoAction, getMembers } from "src/core";
+import { daoTypeMap, governanceConfigs, votingConfigs } from "src/core/constant";
 import { MultiSelectMember } from "./form/MultiSelectMember";
-const { Title } = Typography;
+
 export const NewSubDao = () => {
     const [form] = Form.useForm();
     const dispatch = useAppDispatch();
-    const { title, description, dao_type } = useAppSelector(state => state.subDaoForm);
+    const { title, description } = useAppSelector(state => state.subDaoForm);
+    const { currentDaoAddress, simpleData } = useAppSelector(state => state.daoDetail);
+    const {createSubDao} = useAppSelector(state => state.process)
     const onFinish = (values: any) => {
-        console.log('Received values of form:', values);
+        dispatch(convertStepForm(
+            values
+        ));
+
+        createSubDaoAction();
     };
+
+    useEffect(() => {
+        getMembers()
+    }, [currentDaoAddress])
     return (
         <Form
             layout="vertical"
@@ -23,19 +37,22 @@ export const NewSubDao = () => {
             <Form.Item name="description" initialValue={description} label="Description" rules={[{ required: true, message: 'Missing description' }]}>
                 <Input.TextArea size='large' />
             </Form.Item>
-            <Card size="small" title="Inherit Settings from Parent DAO">
-                <Title level={5}>Governance</Title>
-                <Title level={5}>Require voting of all member</Title>
+            <Card size="small" title="Parent DAO">
+                <Descriptions column={{ xs: 1, lg: 2 }}>
+                    <Descriptions.Item label="Type">{daoTypeMap[simpleData.dao_type]}</Descriptions.Item>
+                    <Descriptions.Item label="Voting">{votingConfigs(simpleData.open)}</Descriptions.Item>
+                    <Descriptions.Item label="Governance">{governanceConfigs(simpleData.percentage)}</Descriptions.Item>
+                </Descriptions>
             </Card>
             <br />
-            <Card size="small" title="Custom Settings">
-                <Form.Item label="Members">
-                    <MultiSelectMember />
-                </Form.Item>
+            <Card size="small" title="Select Members">
+
+                <MultiSelectMember />
+
             </Card>
-            <br/>
+            <br />
             <Form.Item>
-                <Button type="primary" htmlType="submit">
+                <Button type="primary" htmlType="submit" loading={createSubDao.processing}>
                     Submit
                 </Button>
             </Form.Item>

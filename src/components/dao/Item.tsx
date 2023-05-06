@@ -1,42 +1,32 @@
-import { CaretRightOutlined } from '@ant-design/icons';
-import { Button, Collapse, theme, Space } from 'antd';
+import { LinkOutlined } from '@ant-design/icons';
+import { Button, Card, Descriptions, Space } from 'antd';
 import { useRouter } from 'next/router';
-import { DAO } from 'src/controller/dao/daoSlice';
+import { daoTypeMap } from 'src/core/constant';
 import { useAddress } from 'src/hooks/useAddress';
 
-const { Panel } = Collapse;
-
-const text = `
-  A dog is a type of domesticated animal.
-  Known for its loyalty and faithfulness,
-  it can be found as a welcome guest in many households across the world.`
 
 export const Item = (dao) => {
-    const router = useRouter();
-    const {nomalizeContractAddress} = useAddress();
-    const { token } = theme.useToken();
-    const panelStyle = {
-        marginBottom: 24,
-        background: token.colorFillAlter,
-        borderRadius: token.borderRadiusLG,
-        border: 'none',
-    };
-    const daoObj = dao.dao[1];
-    return (
-        <Collapse
-          bordered={false}
-          defaultActiveKey={['1']}
-          expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
-          style={{ background: token.colorBgContainer }}
-        >
-          <Panel header={daoObj.title} key="1" style={panelStyle}>
-            <p>{daoObj.description}</p>
+  const router = useRouter();
+  const { nomalizeContractAddress, getShortAddress } = useAddress();
 
-            <Space wrap>
-              <Button type='primary' onClick={() => router.push(`dao/address/${nomalizeContractAddress(dao.dao[0])}`)}>View Detail</Button>
-              <Button type='primary' ghost>Join this DAO</Button>
-            </Space>
-          </Panel>
-        </Collapse>
-      );
+  const daoObj = dao.dao[1];
+
+  return (
+    <Card title={daoObj.title}>
+
+      <Descriptions layout={"vertical"} column={{ xs: 1, xl: 2}}>
+        <Descriptions.Item label={"Description"}>{daoObj.description}</Descriptions.Item>
+        <Descriptions.Item label={"Address"}>
+          <Button icon={<LinkOutlined />} onClick={() => window.open(`https://explorer.aeternity.io/contracts/transactions/${nomalizeContractAddress(dao.dao[0])}`, "_blank")}>{nomalizeContractAddress(getShortAddress(dao.dao[0]))}</Button>
+        </Descriptions.Item>
+        <Descriptions.Item label={"Created Date"}>{new Date(parseInt(daoObj.created_date)).toLocaleString()}</Descriptions.Item>
+        <Descriptions.Item label={"Type"}>{daoTypeMap[daoObj.dao_type]}</Descriptions.Item>
+        <Descriptions.Item label={"Open"}>{daoObj.open ? "Yes (Anyone can Join)" : "No (Invited members only)"}</Descriptions.Item>
+      </Descriptions>
+      <Space wrap>
+        <Button type='primary' onClick={() => router.push(`dao/address/${nomalizeContractAddress(dao.dao[0])}`)}>View Detail</Button>
+        <Button type='primary' ghost>Join</Button>
+      </Space>
+    </Card>
+  );
 }
