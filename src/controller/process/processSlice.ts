@@ -14,7 +14,8 @@ export const actionNames = {
     getDaos: "getDaos",
     getSubDaos: "getSubDaos",
     getProposalsOf: "getProposals",
-    getSubDaosOf: "getSubDaosOf"
+    getSubDaosOf: "getSubDaosOf",
+    addFund: "addFund"
 }
 
 export const processKeys = {
@@ -59,6 +60,9 @@ const initialState: Processes = {
         processing: false
     },
     getSubDaosOf:  {
+        processing: false
+    },
+    addFund: {
         processing: false
     }
 }
