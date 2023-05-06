@@ -58,6 +58,7 @@ export const LayoutProvider = (props: Props) => {
                             label: 'New Dao',
                             onClick: () => router.push("/dao/new")
                         },
+                        { type: 'divider' }
                         // {
                         //     key: '3',
                         //     //@ts-ignore

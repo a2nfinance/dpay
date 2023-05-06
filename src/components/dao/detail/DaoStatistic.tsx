@@ -7,7 +7,7 @@ import { NewSubDao } from '../NewSubDao';
 const formatter = (value: number) => <CountUp end={value} separator="," />;
 export const DaoStatistic = () => {
   const [openFundPopup, setOpenFundPopup] = useState(false);
-
+  const [openAddMemberPopup, setOpenAddMemberPopup] = useState(false);
   const hideOpenFundPopup = () => {
     setOpenFundPopup(false);
   };
@@ -15,6 +15,15 @@ export const DaoStatistic = () => {
   const handleOpenFundPopupChange = (newOpen: boolean) => {
     setOpenFundPopup(newOpen);
   };
+  const hideOpenAddMemberPopup = () => {
+    setOpenAddMemberPopup(false);
+  };
+
+  const handleOpenAddMemberPopupChange = (newOpen: boolean) => {
+    setOpenAddMemberPopup(newOpen);
+  };
+
+
 
   const [open, setOpen] = useState(false);
 
@@ -56,8 +65,25 @@ export const DaoStatistic = () => {
       <Col span={8}>
         <p>Actions</p>
         <Space direction="horizontal">
-          <Button onClick={showDrawerSubDao}>New SubDao</Button>
-          <Button onClick={showDrawer}>New Proposal</Button>
+          <Button onClick={showDrawerSubDao} type="primary" ghost>New SubDao</Button>
+          <Button onClick={showDrawer} type="primary" ghost>New Proposal</Button>
+          <Popover
+            content={
+              <>
+                <Input name='adress'/>
+                <Divider />
+                <Button type='primary'>Add</Button>
+              </>
+            }
+            title="Address"
+            trigger="click"
+            open={openAddMemberPopup}
+            onOpenChange={handleOpenAddMemberPopupChange}
+          >
+
+            <Button type="primary" ghost>Add Member</Button>
+          </Popover>
+
           <Popover
             content={
               <>

@@ -11,7 +11,8 @@ main contract DAORegistry =
         title: string,
         description: string,
         open: bool,
-        dao_type: int
+        dao_type: int,
+        created_date: int
         }
 
     record state = {
@@ -43,7 +44,7 @@ main contract DAORegistry =
             switch(Chain.clone(ref=Address.to_contract(Pair.fst(List.get(0, Map.to_list(state.daos)))), protected=true, new_dao))
                 None => abort("!DAO")
                 Some(created_dao) =>
-                    put(state { daos[created_dao.address] = { owner= Call.caller, title= title, description= description, open= open, dao_type=dao_type  } })
+                    put(state { daos[created_dao.address] = { owner= Call.caller, title= title, description= description, open= open, dao_type=dao_type, created_date=Chain.timestamp  } })
 
                     if (Option.is_some(parent_dao))
                         let parent_dao_address = Option.force(parent_dao)
@@ -52,7 +53,7 @@ main contract DAORegistry =
         else             
             let created_dao = Chain.create(new_dao): DAO
 
-            put(state { daos[created_dao.address] = { owner= Call.caller, title= title, description= description, open= open, dao_type=dao_type  } })
+            put(state { daos[created_dao.address] = { owner= Call.caller, title= title, description= description, open= open, dao_type=dao_type, created_date=Chain.timestamp  } })
 
             if (Option.is_some(parent_dao))
                 let parent_dao_address = Option.force(parent_dao)

@@ -33,8 +33,8 @@ export const Item = (dao) => {
             <p>{daoObj.description}</p>
 
             <Space wrap>
-              <Button onClick={() => router.push(`dao/address/${nomalizeContractAddress(dao.dao[0])}`)}>View Detail</Button>
-              <Button>Join this DAO</Button>
+              <Button type='primary' onClick={() => router.push(`dao/address/${nomalizeContractAddress(dao.dao[0])}`)}>View Detail</Button>
+              <Button type='primary' ghost>Join this DAO</Button>
             </Space>
           </Panel>
         </Collapse>
