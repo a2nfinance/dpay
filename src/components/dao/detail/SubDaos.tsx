@@ -14,7 +14,7 @@ export const SubDaos = () => {
         <Row>
             {
                 subDaos.map((dao, index) => {
-                    return <Col key={`dao-${index}`} xs={24} sm={24} md={12} lg={8} xl={6} >
+                    return <Col key={`sub-dao-${index}`} xs={24} sm={24} md={12} lg={8} xl={6} >
                         <Item key={index} dao={dao} />
                     </Col>
 

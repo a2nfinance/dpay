@@ -1,14 +1,15 @@
-import { Button, Divider, Form, Tag, Typography } from "antd";
+import { Button, Descriptions, Divider, Form, Tag, Typography } from "antd";
 import { useAppSelector } from "src/controller/hooks";
-import { createDAO } from "src/core";
+import { createDAO as createDAOAction } from "src/core";
 import { formStyle } from "src/theme/layout";
 const { Title } = Typography;
 export const ReviewAndApprove = () => {
     const [form] = Form.useForm();
-    const { title, description, members, open, percentage } = useAppSelector(state => state.daoForm)
+    const { title, description, members, open, percentage } = useAppSelector(state => state.daoForm);
+    const { createDao } = useAppSelector(state => state.process);
     const onFinish = (values: any) => {
         console.log('Received values of form:', values);
-        createDAO(false, null);
+        createDAOAction();
     }
     return (
         <Form
@@ -17,22 +18,24 @@ export const ReviewAndApprove = () => {
             style={formStyle}
             autoComplete="off"
         >
-            <Title level={4}>{title}</Title>
-            <p>{description}</p>
-            <Title level={4}>Governance</Title>
-            <p>{open ? "Anyone can join" : "Invited Member Only"}</p>
-            <Title level={4}>Voting Configuration</Title>
-            <p>{percentage === 100 ? "Require voting of all member" : `Above ${percentage} %`}</p>
-            <Title level={4}>Members</Title>
-            {
-                members.map((member, index) => {
-                    return <Tag key={`address-${index}`} color="default">{member.address}</Tag>
+            <Descriptions title="DAO Settings" layout={"vertical"} column={{xs: 1, lg: 2}}>
+                <Descriptions.Item label={"Title"}>{title}</Descriptions.Item>
+                <Descriptions.Item label={"Description"}>{description}</Descriptions.Item>
+                <Descriptions.Item label={"Governance"}>{open ? "Anyone can join" : "Invited Member Only"}</Descriptions.Item>
+                <Descriptions.Item label={"Voting Configuration"}>{percentage === 100 ? "Require voting of all member" : `Above ${percentage} %`}</Descriptions.Item>
+                <Descriptions.Item label={"Members"}>
 
-                })
-            }
-            <Divider/>
+                    {
+                        members.map((member, index) => {
+                            return <Tag key={`address-${index}`} color="default">{member.address}</Tag>
+
+                        })
+                    }
+                </Descriptions.Item>
+            </Descriptions>
+            <Divider />
             <Form.Item>
-                <Button type="primary" htmlType="submit">
+                <Button type="primary" htmlType="submit" loading={createDao.processing}>
                     Submit
                 </Button>
             </Form.Item>

@@ -11,6 +11,8 @@ export const actionNames = {
     executeProposal: "executeProposal",
     addMember: "addMember",
     removeMember: "removeMember",
+    join: "join",
+    leave: "leave",
     getDaos: "getDaos",
     getSubDaos: "getSubDaos",
     getProposalsOf: "getProposals",
@@ -48,6 +50,12 @@ const initialState: Processes = {
         processing: false
     },
     removeMember: {
+        processing: false
+    },
+    join: {
+        processing: false
+    },
+    leave: {
         processing: false
     },
     getDaos:  {

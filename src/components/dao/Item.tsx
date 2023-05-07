@@ -1,6 +1,8 @@
 import { LinkOutlined } from '@ant-design/icons';
 import { Button, Card, Descriptions, Space } from 'antd';
 import { useRouter } from 'next/router';
+import { useAppSelector } from 'src/controller/hooks';
+import { joinDao } from 'src/core';
 import { daoTypeMap } from 'src/core/constant';
 import { useAddress } from 'src/hooks/useAddress';
 
@@ -8,6 +10,7 @@ import { useAddress } from 'src/hooks/useAddress';
 export const Item = (dao) => {
   const router = useRouter();
   const { nomalizeContractAddress, getShortAddress } = useAddress();
+  const {join} = useAppSelector(state => state.process)
 
   const daoObj = dao.dao[1];
 
@@ -24,8 +27,10 @@ export const Item = (dao) => {
         <Descriptions.Item label={"Open"}>{daoObj.open ? "Yes (Anyone can Join)" : "No (Invited members only)"}</Descriptions.Item>
       </Descriptions>
       <Space wrap>
-        <Button type='primary' onClick={() => router.push(`dao/address/${nomalizeContractAddress(dao.dao[0])}`)}>View Detail</Button>
-        <Button type='primary' ghost>Join</Button>
+        <Button type='primary' onClick={() => router.push(`/dao/address/${nomalizeContractAddress(dao.dao[0])}`)}>View Detail</Button>
+        {
+          daoObj.open && <Button type='primary' loading={join.processing} onClick={() => joinDao(nomalizeContractAddress(dao.dao[0]))} ghost>Join</Button>
+        }
       </Space>
     </Card>
   );

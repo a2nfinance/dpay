@@ -331,7 +331,7 @@ export const DaoACI = [{
             "type": "address"
           }
         ],
-        "name": "add_memmber",
+        "name": "add_member",
         "payable": false,
         "returns": "bool",
         "stateful": true
@@ -344,6 +344,20 @@ export const DaoACI = [{
           }
         ],
         "name": "remove_member",
+        "payable": false,
+        "returns": "bool",
+        "stateful": true
+      },
+      {
+        "arguments": [],
+        "name": "join",
+        "payable": false,
+        "returns": "bool",
+        "stateful": true
+      },
+      {
+        "arguments": [],
+        "name": "leave",
         "payable": false,
         "returns": "bool",
         "stateful": true
@@ -568,4 +582,4 @@ export const DaoACI = [{
       }
     ]
   }
-}]  
+}]
