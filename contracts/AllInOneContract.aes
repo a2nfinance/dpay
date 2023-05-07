@@ -161,9 +161,18 @@ payable contract DAO :  DAOInterface =
         // check contributor or member
         let is_member = List.contains(Call.caller, state.members)
         if (is_member)
-            put(state{ member_fund[Call.caller] = state.member_fund[Call.caller] + Call.value})
+            let is_exist_in_map = Map.member(Call.caller, state.member_fund)
+            if (is_exist_in_map)
+                put(state{ member_fund[Call.caller] = state.member_fund[Call.caller] + Call.value})
+            else
+                put(state{ member_fund[Call.caller] = Call.value})
         else 
-            put(state{ contributor_fund[Call.caller] = state.member_fund[Call.caller] + Call.value})     
+            let is_exist_in_map = Map.member(Call.caller, state.contributor_fund)
+            if (is_exist_in_map)
+                put(state{ contributor_fund[Call.caller] = state.contributor_fund[Call.caller] + Call.value})     
+            else
+                put(state{ contributor_fund[Call.caller] = Call.value})
+            
 
     stateful entrypoint execute_proposal(index: int): int =
         require(state.status == 1, "!dao_active")
@@ -215,31 +224,31 @@ payable contract DAO :  DAOInterface =
         put(state {members = List.filter((m) => m != member, state.members)})
         true
 
-    stateful entrypoint join(member: address): bool =
+    stateful entrypoint join(): bool =
+        let member = Call.caller
         require(state.status == 1, "!dao_active")
         require(state.open, "!open_dao")
         let is_member = List.contains(member, state.members)
         require(!is_member, "Existed")
-        put(state {members = Call.caller::state.members})
+        put(state {members = member::state.members})
         true
 
 
-    stateful entrypoint leave(member: address): bool =
+    stateful entrypoint leave(): bool =
+        let member = Call.caller
         require(state.status == 1, "!dao_active")
         require(state.open, "!open_dao")
         let is_member = List.contains(member, state.members)
         require(is_member, "!Existed")
-        put(state {members = List.filter((m) => m != Call.caller, state.members)})
+        put(state {members = List.filter((m) => m != member, state.members)})
         true
 
     // 1: active, 2: paused, 3: defunctioned    
     stateful entrypoint change_dao_status(newStatus: int): int = 
         require(Call.caller == state.owner, "!dao_owner")
-        if (state.status != 3)
-            put(state {status= newStatus} )
-            newStatus
-        else    
-            0    
+        require(state.status != 3, "Defunctioned")
+        put(state {status= newStatus} )
+        newStatus  
 
     // 1: active, 2: paused, 3: cancelled   
     stateful entrypoint change_proposal_status(index: int, newStatus: int): int =
@@ -266,7 +275,6 @@ payable contract DAO :  DAOInterface =
                 require(amount_left >= tokens, "!enough_tokens")
                 Chain.spend(address,tokens) 
                 spend_to_many'(l', total_tokens_spend + tokens, amount_left - tokens)
-
 
 main contract DAORegistry = 
     record dao = {
@@ -311,8 +319,11 @@ main contract DAORegistry =
 
                     if (Option.is_some(parent_dao))
                         let parent_dao_address = Option.force(parent_dao)
-                        put(state { sub_daos[parent_dao_address] = created_dao.address::state.sub_daos[parent_dao_address] })
-                   
+                        let map_exist = Map.member(parent_dao_address, state.sub_daos)
+                        if (map_exist)
+                            put(state { sub_daos[parent_dao_address] = created_dao.address::state.sub_daos[parent_dao_address] })
+                        else
+                            put(state {sub_daos[parent_dao_address] = [created_dao.address] })
         else             
             let created_dao = Chain.create(new_dao): DAO
 
@@ -320,8 +331,11 @@ main contract DAORegistry =
 
             if (Option.is_some(parent_dao))
                 let parent_dao_address = Option.force(parent_dao)
-                put(state { sub_daos[parent_dao_address] = created_dao.address::state.sub_daos[parent_dao_address] })
-        
+                let map_exist = Map.member(parent_dao_address, state.sub_daos)
+                if (map_exist)
+                    put(state { sub_daos[parent_dao_address] = created_dao.address::state.sub_daos[parent_dao_address] })
+                else
+                    put(state { sub_daos[parent_dao_address] = [created_dao.address] })
 
     entrypoint get_daos(): list(address * dao) =
         Map.to_list(state.daos)
@@ -335,4 +349,7 @@ main contract DAORegistry =
             sub_daos
         else
             []
+
+
+            
 

@@ -48,8 +48,11 @@ main contract DAORegistry =
 
                     if (Option.is_some(parent_dao))
                         let parent_dao_address = Option.force(parent_dao)
-                        put(state { sub_daos[parent_dao_address] = created_dao.address::state.sub_daos[parent_dao_address] })
-                   
+                        let map_exist = Map.member(parent_dao_address, state.sub_daos)
+                        if (map_exist)
+                            put(state { sub_daos[parent_dao_address] = created_dao.address::state.sub_daos[parent_dao_address] })
+                        else
+                            put(state {sub_daos[parent_dao_address] = [created_dao.address] })
         else             
             let created_dao = Chain.create(new_dao): DAO
 
@@ -57,8 +60,11 @@ main contract DAORegistry =
 
             if (Option.is_some(parent_dao))
                 let parent_dao_address = Option.force(parent_dao)
-                put(state { sub_daos[parent_dao_address] = created_dao.address::state.sub_daos[parent_dao_address] })
-        
+                let map_exist = Map.member(parent_dao_address, state.sub_daos)
+                if (map_exist)
+                    put(state { sub_daos[parent_dao_address] = created_dao.address::state.sub_daos[parent_dao_address] })
+                else
+                    put(state { sub_daos[parent_dao_address] = [created_dao.address] })
 
     entrypoint get_daos(): list(address * dao) =
         Map.to_list(state.daos)
