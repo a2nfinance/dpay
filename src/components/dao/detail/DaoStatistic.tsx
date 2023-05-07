@@ -1,12 +1,11 @@
 import { Button, Col, Divider, Drawer, Input, Popover, Row, Space, Statistic } from 'antd';
 import { AE_AMOUNT_FORMATS, formatAmount } from "@aeternity/aepp-sdk";
 import { useCallback, useState } from 'react';
-import CountUp from 'react-countup';
 import { NewProposal } from 'src/components/proposal/NewProposal';
 import { fundDao, addMember as addMemberAction } from 'src/core';
 import { NewSubDao } from '../NewSubDao';
 import { useAppSelector } from 'src/controller/hooks';
-const formatter = (value: number) => <CountUp end={value} separator="," />;
+
 export const DaoStatistic = () => {
   const { simpleData } = useAppSelector(state => state.daoDetail);
   const {addFund, addMember} = useAppSelector(state => state.process);
@@ -64,10 +63,10 @@ export const DaoStatistic = () => {
   return (
     <Row gutter={6}>
       <Col span={4}>
-        <Statistic title="Members" value={simpleData.members_length} formatter={formatter} />
+        <Statistic title="Members" value={simpleData.members_length}  />
       </Col>
       <Col span={4}>
-        <Statistic title="Proposals" value={simpleData.proposals_length} precision={2} formatter={formatter} />
+        <Statistic title="Proposals" value={simpleData.proposals_length} precision={2}/>
       </Col>
       <Col span={4}>
         <Statistic title="Treasury (AE)" value={formatAmount(simpleData.balance, { targetDenomination: AE_AMOUNT_FORMATS.AE })} precision={2}  />
