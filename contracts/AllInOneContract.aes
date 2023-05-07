@@ -44,7 +44,9 @@ contract interface DAOInterface =
     payable stateful entrypoint fund : () => unit
     stateful entrypoint execute_proposal: () => int
     entrypoint get_contract_balance: () => int
-    stateful entrypoint add_memmber: (address) => bool
+    stateful entrypoint add_member: (address) => bool
+    stateful entrypoint join: (address) => bool
+    stateful entrypoint leave: () => bool
     stateful entrypoint remove_member: (address) => bool
     stateful entrypoint change_dao_status: (int) => int
     stateful entrypoint change_proposal_status: (int, int) => int
@@ -161,7 +163,7 @@ payable contract DAO :  DAOInterface =
         if (is_member)
             put(state{ member_fund[Call.caller] = state.member_fund[Call.caller] + Call.value})
         else 
-            put(state{ contributor_fund[Call.caller] = state.member_fund[Call.caller] + Call.value})        
+            put(state{ contributor_fund[Call.caller] = state.member_fund[Call.caller] + Call.value})     
 
     stateful entrypoint execute_proposal(index: int): int =
         require(state.status == 1, "!dao_active")
@@ -197,8 +199,9 @@ payable contract DAO :  DAOInterface =
     entrypoint get_contract_balance(): int =
         Contract.balance
 
-    stateful entrypoint add_memmber(new_member: address): bool =
+    stateful entrypoint add_member(new_member: address): bool =
         require(state.status == 1, "!dao_active")
+        require(Call.caller == state.owner, "!owner")
         let is_member = List.contains(new_member, state.members)
         require(!is_member, "Existed")
         put(state {members = new_member::state.members})
@@ -206,9 +209,27 @@ payable contract DAO :  DAOInterface =
 
     stateful entrypoint remove_member(member: address): bool =
         require(state.status == 1, "!dao_active")
+        require(Call.caller == state.owner, "!owner")
         let is_member = List.contains(member, state.members)
         require(is_member, "!Existed")
         put(state {members = List.filter((m) => m != member, state.members)})
+        true
+
+    stateful entrypoint join(member: address): bool =
+        require(state.status == 1, "!dao_active")
+        require(state.open, "!open_dao")
+        let is_member = List.contains(member, state.members)
+        require(!is_member, "Existed")
+        put(state {members = Call.caller::state.members})
+        true
+
+
+    stateful entrypoint leave(member: address): bool =
+        require(state.status == 1, "!dao_active")
+        require(state.open, "!open_dao")
+        let is_member = List.contains(member, state.members)
+        require(is_member, "!Existed")
+        put(state {members = List.filter((m) => m != Call.caller, state.members)})
         true
 
     // 1: active, 2: paused, 3: defunctioned    
@@ -217,7 +238,7 @@ payable contract DAO :  DAOInterface =
         if (state.status != 3)
             put(state {status= newStatus} )
             newStatus
-        else     
+        else    
             0    
 
     // 1: active, 2: paused, 3: cancelled   
@@ -233,8 +254,8 @@ payable contract DAO :  DAOInterface =
             // Change status here
             put(state{proposals[index].status = newStatus})
             newStatus
-        else     
-            0    
+        else    
+            0        
 
 
     // traverse through list of maps

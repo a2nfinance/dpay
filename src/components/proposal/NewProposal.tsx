@@ -1,15 +1,17 @@
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Card, Divider, Drawer, Form, Input, Radio, Space } from "antd"
 import { useState } from "react";
-import { createProposal } from "src/core";
+import { useAppSelector } from "src/controller/hooks";
+import { createProposal as createProposalAction } from "src/core";
 
 export const NewProposal = () => {
     const [form] = Form.useForm();
     const [paymentType, setPaymentType] = useState(1)
+    const {createProposal} = useAppSelector(state => state.process)
 
     const onFinish = (values: any) => {
         console.log('Received values of form:', values);
-        createProposal(values);
+        createProposalAction(values);
     };
     return (
         <Form onFinish={onFinish}>
@@ -78,7 +80,7 @@ export const NewProposal = () => {
             </Card>
             <Divider />
             <Form.Item>
-                <Button type="primary" htmlType="submit">
+                <Button type="primary" htmlType="submit" loading={createProposal.processing}>
                     Submit
                 </Button>
             </Form.Item>

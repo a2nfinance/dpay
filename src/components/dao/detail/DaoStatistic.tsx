@@ -64,10 +64,10 @@ export const DaoStatistic = () => {
   return (
     <Row gutter={6}>
       <Col span={4}>
-        <Statistic title="Members" value={simpleData.member_length} formatter={formatter} />
+        <Statistic title="Members" value={simpleData.members_length} formatter={formatter} />
       </Col>
       <Col span={4}>
-        <Statistic title="Proposals" value={simpleData.proposal_length} precision={2} formatter={formatter} />
+        <Statistic title="Proposals" value={simpleData.proposals_length} precision={2} formatter={formatter} />
       </Col>
       <Col span={4}>
         <Statistic title="Treasury (AE)" value={formatAmount(simpleData.balance, { targetDenomination: AE_AMOUNT_FORMATS.AE })} precision={2}  />

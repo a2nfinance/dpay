@@ -1,4 +1,4 @@
-import { AeSdkAepp, Node, walletDetector, BrowserWindowMessageConnection, CompilerHttp, AE_AMOUNT_FORMATS } from '@aeternity/aepp-sdk';
+import { AeSdkAepp, Node, walletDetector, BrowserWindowMessageConnection, CompilerHttp, AE_AMOUNT_FORMATS, toAe, formatAmount } from '@aeternity/aepp-sdk';
 import { store } from "src/controller/store";
 import { setProps } from 'src/controller/wallet/walletSlice';
 import { DaoRegistryACI, DaoACI } from './aci';
@@ -225,15 +225,15 @@ const createDAO = async (isSubDAo: boolean, parentDAO: string) => {
 
 const createSubDAO = async () => {
   try {
-    let {currentDaoAddress, simpleData} = store.getState().daoDetail;
-    let {title, description, members} = store.getState().subDaoForm;
+    let { currentDaoAddress, simpleData } = store.getState().daoDetail;
+    let { title, description, members } = store.getState().subDaoForm;
     store.dispatch(updateProcessStatus({
       actionName: actionNames.createSubDao,
       att: processKeys.processing,
       value: true
     }))
     await connect();
-    console.log( title,
+    console.log(title,
       description,
       simpleData.percentage,
       simpleData.open,
@@ -250,7 +250,7 @@ const createSubDAO = async () => {
       convertCtToAk(currentDaoAddress)
     );
     openNotification("Create SubDao", `Create SubDao successful`, MESSAGE_TYPE.SUCCESS, () => { })
-  } catch(e) {
+  } catch (e) {
     openNotification("Create SubDao", e.message, MESSAGE_TYPE.ERROR, () => { })
   }
   store.dispatch(updateProcessStatus({
@@ -269,38 +269,54 @@ const createProposal = async (formValues: {
   startTime?: number,
   stopTime?: number
 }) => {
-  let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
-  if (currentDaoAddress) {
-    await connectDao(currentDaoAddress);
-    let startTime = 0;
-    let stopTime = 0;
-    if (formValues.payment_type === 2) {
+  try {
+    let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
+    if (currentDaoAddress) {
+      store.dispatch(updateProcessStatus({
+        actionName: actionNames.createProposal,
+        att: processKeys.processing,
+        value: true
+      }))
+      await connectDao(currentDaoAddress);
+      let startTime = 0;
+      let stopTime = 0;
+      if (formValues.payment_type === 2) {
 
-      startTime = new Date(formValues.startTime).getTime();
-    } else if (formValues.payment_type === 3) {
-      startTime = new Date(formValues.startTime).getTime();
-      stopTime = new Date(formValues.stopTime).getTime();
+        startTime = new Date(formValues.startTime).getTime();
+      } else if (formValues.payment_type === 3) {
+        startTime = new Date(formValues.startTime).getTime();
+        stopTime = new Date(formValues.stopTime).getTime();
+      }
+      console.log(formValues.title,
+        formValues.description,
+        formValues.payment_type,
+        formValues.recipients.map((recipient) => {
+          return [recipient.address, formatAmount(recipient.amount, { denomination: AE_AMOUNT_FORMATS.AE })]
+        }),
+        startTime,
+        stopTime)
+      const tx = await daoContract.create_proposal(
+        formValues.title,
+        formValues.description,
+        formValues.payment_type,
+        formValues.recipients.map((recipient) => {
+          return [recipient.address, formatAmount(recipient.amount, { denomination: AE_AMOUNT_FORMATS.AE })]
+        }),
+        startTime,
+        stopTime
+      );
+      console.log(tx.decodedResult);
+
+      openNotification("Create Proposal", `Create Proposal Successful`, MESSAGE_TYPE.SUCCESS, () => { })
     }
-    console.log(formValues.title,
-      formValues.description,
-      formValues.payment_type,
-      formValues.recipients.map((recipient) => {
-        return [recipient.address, recipient.amount]
-      }),
-      startTime,
-      stopTime)
-    const tx = await daoContract.create_proposal(
-      formValues.title,
-      formValues.description,
-      formValues.payment_type,
-      formValues.recipients.map((recipient) => {
-        return [recipient.address, recipient.amount]
-      }),
-      startTime,
-      stopTime
-    );
-    console.log(tx.decodedResult);
+  } catch (e) {
+    openNotification("Create Proposal", e.message, MESSAGE_TYPE.ERROR, () => { })
   }
+  store.dispatch(updateProcessStatus({
+    actionName: actionNames.createProposal,
+    att: processKeys.processing,
+    value: false
+  }))
 }
 
 const fundDao = async (amount: number) => {
@@ -332,16 +348,18 @@ const fundDao = async (amount: number) => {
 }
 
 const getDaoProposals = async () => {
-  let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
-  if (currentDaoAddress) {
+  try {
+    let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
+    if (currentDaoAddress) {
 
-    await initReadDaoContract(currentDaoAddress);
-    const tx = await daoContract.get_proposals();
-    console.log(tx.decodedResult);
-
-    store.dispatch(setDaoDetailProps({ att: "proposals", value: tx.decodedResult }))
-
+      await initReadDaoContract(currentDaoAddress);
+      const tx = await daoContract.get_proposals();
+      store.dispatch(setDaoDetailProps({ att: "proposals", value: tx.decodedResult }))
+    }
+  } catch (e) {
+    openNotification("Get Proposal", e.message, MESSAGE_TYPE.ERROR, () => { })
   }
+
 }
 
 
@@ -422,6 +440,33 @@ const removeMember = async (address: string) => {
   }
 }
 
+
+const vote = async (index: number, vote_value: boolean) => {
+  try {
+    let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
+    if (currentDaoAddress) {
+      store.dispatch(updateProcessStatus({
+        actionName: actionNames.vote,
+        att: processKeys.processing,
+        value: true
+      }))
+      await connectDao(currentDaoAddress);
+      const tx = await daoContract.vote(index, vote_value);
+      console.log(tx.decodedResult);
+      openNotification("Vote", `Vote successful`, MESSAGE_TYPE.SUCCESS, () => { })
+    }
+  } catch (e) {
+    openNotification("Vote", e.message, MESSAGE_TYPE.ERROR, () => { })
+  }
+
+  store.dispatch(updateProcessStatus({
+    actionName: actionNames.vote,
+    att: processKeys.processing,
+    value: false
+  }))
+}
+
+
 const updateDaoStatus = async (status: number) => {
   let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
   if (currentDaoAddress) {
@@ -445,14 +490,27 @@ const updateProposalStatus = async (index: number, status: number) => {
 }
 
 const executeProposal = async (index: number) => {
-  let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
-  if (currentDaoAddress) {
-
-    await connectDao(currentDaoAddress);
-    const tx = await daoContract.execute_proposal(index);
-    console.log(tx.decodedResult);
-
+  try {
+    let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
+    if (currentDaoAddress) {
+      store.dispatch(updateProcessStatus({
+        actionName: actionNames.executeProposal,
+        att: processKeys.processing,
+        value: true
+      }))
+      await connectDao(currentDaoAddress);
+      const tx = await daoContract.execute_proposal(index);
+      console.log(tx.decodedResult);
+      openNotification("Execute proposal", `Execute proposal successful`, MESSAGE_TYPE.SUCCESS, () => { })
+    }
+  } catch (e) {
+    openNotification("Execute proposal", e.message, MESSAGE_TYPE.ERROR, () => { })
   }
+  store.dispatch(updateProcessStatus({
+    actionName: actionNames.executeProposal,
+    att: processKeys.processing,
+    value: false
+  }))
 }
 
 export {
@@ -472,6 +530,7 @@ export {
   getMembers,
   addMember,
   removeMember,
+  vote,
   updateDaoStatus,
   updateProposalStatus,
   executeProposal
