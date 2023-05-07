@@ -1,7 +1,7 @@
-import { Dropdown, Button, MenuProps } from "antd";
+import { Button, Dropdown, MenuProps } from "antd";
 import Image from "next/image";
 import { useAppSelector } from "src/controller/hooks";
-import { connect, disconnect, getDaos, transfer } from "src/core";
+import { connect, disconnect } from "src/core";
 import { useAddress } from "src/hooks/useAddress";
 export const ConnectButton = () => {
     const {getShortAddress} = useAddress()
