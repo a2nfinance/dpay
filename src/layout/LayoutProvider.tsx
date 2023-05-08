@@ -1,21 +1,21 @@
 import React, { useState } from "react";
-import {
+import Icon, {
     HomeOutlined,
     MenuFoldOutlined,
     MenuUnfoldOutlined,
     TeamOutlined,
+    TwitterOutlined,
     UploadOutlined,
     UserOutlined,
     VideoCameraOutlined,
-    
+
 } from '@ant-design/icons';
 
-import { Layout, Menu, Button, theme, Input, Space, Affix, Form } from 'antd';
+import { Layout, Menu, Button, theme, Input, Space, Affix, Form, Switch } from 'antd';
 
 import { useRouter } from "next/router";
 import { ConnectButton } from "src/components/common/ConnectButton";
 import Image from "next/image";
-
 const { Header, Sider, Content, Footer } = Layout;
 
 interface Props {
@@ -32,16 +32,17 @@ export const LayoutProvider = (props: Props) => {
     const onSearch = (value: string) => console.log(value);
 
     return (
-        <Layout style={{ minHeight: '100vh' }}> 
+        <Layout style={{ minHeight: '100vh' }}>
             <Sider trigger={null} collapsible collapsed={collapsed}>
-                <div style={{ height: 50, margin: 16}}>
-                    <Image src={"/dpay.png"} alt="dpay" width={160} height={50} />
+                <div style={{ height: 50, margin: 16 }}>
+                    {
+                        !collapsed ? <Image src={"/dpay.png"} alt="dpay" width={160} height={50} /> : <Image src={"/d.png"} alt="dpay" width={50} height={50} />
+                    }
                 </div>
 
                 <Menu
                     theme="dark"
                     mode="inline"
-
                     defaultSelectedKeys={['1']}
                     items={[
                         {
@@ -59,12 +60,6 @@ export const LayoutProvider = (props: Props) => {
                             onClick: () => router.push("/dao/new")
                         },
                         { type: 'divider' }
-                        // {
-                        //     key: '3',
-                        //     //@ts-ignore
-                        //     icon: <UploadOutlined />,
-                        //     label: 'nav 3',
-                        // },
                     ]}
                 />
 
@@ -97,6 +92,13 @@ export const LayoutProvider = (props: Props) => {
                                     onSearch={onSearch}
                                 />
                             </Form.Item>
+                    
+                            {/* <Form.Item>
+                                <Switch checkedChildren={<Image src={"/light.svg"} width={16} height={16} alt="Light"/>}
+                                 
+                                    unCheckedChildren={<Image src={"/dark.svg"} width={16} height={16} alt="Dark"/>}
+                                    defaultChecked />
+                            </Form.Item> */}
                             <Form.Item>
                                 <ConnectButton />
                             </Form.Item>

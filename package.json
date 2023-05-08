@@ -7,9 +7,9 @@
     "test-dao": "mocha ./test/**/daoTest.js --timeout 0 --exit",
     "deploy-testnet": "node deployTestnet.js",
     "deploy-mainnet": "node deployMainnet.js",
-    "dev": "next dev -p 6000",
+    "dev": "next dev -p 5000",
     "build": "next build",
-    "start": "next start -p 6000"
+    "start": "next start -p 5000"
   },
   "dependencies": {
     "@aeternity/aepp-sdk": "^13.0.0",

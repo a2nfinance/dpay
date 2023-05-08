@@ -30,7 +30,7 @@ export const Governance = () => {
             <Form.Item name="open" initialValue={open ? 2 : 1} >
                 <Radio.Group>
                     <Radio value={1}>Invited Members Only</Radio>
-                    <Radio value={2}>Anyone can join</Radio>
+                    <Radio value={2}>Open to all</Radio>
                 </Radio.Group>
             </Form.Item>
             <Form.List name="members" initialValue={members}>

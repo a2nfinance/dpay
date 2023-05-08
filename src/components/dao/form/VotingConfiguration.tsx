@@ -27,8 +27,8 @@ export const VotingConfiguration = () => {
         >
             <Form.Item name="voting_mode" initialValue={voting_mode}>
                 <Radio.Group onChange={(e) => dispatch(setDaoFormProps({att: "voting_mode", value: e.target.value}))}>
-                    <Radio value={1}>All members</Radio>
-                    <Radio value={2}>A percentage number</Radio>
+                    <Radio value={1}>All-member vote required for proposal execution.</Radio>
+                    <Radio value={2}>Above a percentage number</Radio>
                 </Radio.Group>
             </Form.Item>
 

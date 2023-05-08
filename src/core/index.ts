@@ -4,7 +4,7 @@ import { setProps } from 'src/controller/wallet/walletSlice';
 import { DaoRegistryACI, DaoACI } from './aci';
 import { setDaoProps } from 'src/controller/dao/daoSlice';
 import { setDaoDetailProps } from 'src/controller/dao/daoDetailSlice';
-
+import Router from 'next/router';
 import { notification } from 'antd';
 import { actionNames, processKeys, updateProcessStatus } from 'src/controller/process/processSlice';
 
@@ -238,6 +238,8 @@ const createDAO = async () => {
       null
     );
     openNotification("Create DAO", `Create ${daoForm.title} successful`, MESSAGE_TYPE.SUCCESS, () => { })
+    //Reload DAOs
+    getDaos();
   } catch(e) {
     openNotification("Create DAO", e.message, MESSAGE_TYPE.ERROR, () => { })
   }
@@ -271,6 +273,8 @@ const createSubDAO = async () => {
       convertCtToAk(currentDaoAddress)
     );
     openNotification("Create SubDao", `Create SubDao successful`, MESSAGE_TYPE.SUCCESS, () => { })
+    // Reload subdao list
+    getSubDaosOf();
   } catch (e) {
     openNotification("Create SubDao", e.message, MESSAGE_TYPE.ERROR, () => { })
   }
@@ -329,6 +333,8 @@ const createProposal = async (formValues: {
       console.log(tx.decodedResult);
 
       openNotification("Create Proposal", `Create Proposal Successful`, MESSAGE_TYPE.SUCCESS, () => { })
+      // Reload proposals list
+      getDaoProposals()
     }
   } catch (e) {
     openNotification("Create Proposal", e.message, MESSAGE_TYPE.ERROR, () => { })
@@ -355,6 +361,10 @@ const fundDao = async (amount: number) => {
         const tx = await daoContract.fund({ amount: amount, denomination: AE_AMOUNT_FORMATS.AE });
         console.log(tx.decodedResult);
         openNotification("Add Fund", `Add ${amount} AE successful`, MESSAGE_TYPE.SUCCESS, () => { })
+        // Reload fund
+        await getDaoDetail(currentDaoAddress)
+        getContributorFund()
+        getMemberFund()
       }
     }
   } catch (e) {
@@ -435,9 +445,12 @@ const addMember = async (address: string) => {
         value: true
       }))
       await connectDao(currentDaoAddress);
-      const tx = await daoContract.add_memmber(address);
+      const tx = await daoContract.add_member(address);
       console.log(tx.decodedResult);
       openNotification("Add Member", `Add new member "${address}" successful`, MESSAGE_TYPE.SUCCESS, () => { })
+      // Reload member list
+      getDaoDetail(currentDaoAddress)
+      getMembers();
     }
   } catch (e) {
     openNotification("Add Member", e.message, MESSAGE_TYPE.ERROR, () => { })
@@ -451,14 +464,32 @@ const addMember = async (address: string) => {
 }
 
 const removeMember = async (address: string) => {
-  let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
-  if (currentDaoAddress) {
-
-    await connectDao(currentDaoAddress);
-    const tx = await daoContract.remove_member(address);
-    console.log(tx.decodedResult);
-
+  try {
+    let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
+    if (currentDaoAddress) {
+      store.dispatch(updateProcessStatus({
+        actionName: actionNames.removeMember,
+        att: processKeys.processing,
+        value: true
+      }))
+      await connectDao(currentDaoAddress);
+      const tx = await daoContract.remove_member(address);
+      console.log(tx.decodedResult);
+      openNotification("Remove Member", `Remove member "${address}" successful`, MESSAGE_TYPE.SUCCESS, () => { })
+      // Reload member list
+      getDaoDetail(currentDaoAddress)
+      getMembers();
+    }
+  } catch(e) {
+    openNotification("Remove Member", e.message, MESSAGE_TYPE.ERROR, () => { })
   }
+
+  store.dispatch(updateProcessStatus({
+    actionName: actionNames.removeMember,
+    att: processKeys.processing,
+    value: false
+  }))
+  
 }
 const joinDao = async (address: string) => {
   try {
@@ -521,6 +552,8 @@ const vote = async (index: number, vote_value: boolean) => {
       const tx = await daoContract.vote(index, vote_value);
       console.log(tx.decodedResult);
       openNotification("Vote", `Vote successful`, MESSAGE_TYPE.SUCCESS, () => { })
+      // Reload Dao Proposals
+      getDaoProposals()
     }
   } catch (e) {
     openNotification("Vote", e.message, MESSAGE_TYPE.ERROR, () => { })
@@ -569,6 +602,9 @@ const executeProposal = async (index: number) => {
       const tx = await daoContract.execute_proposal(index);
       console.log(tx.decodedResult);
       openNotification("Execute proposal", `Execute proposal successful`, MESSAGE_TYPE.SUCCESS, () => { })
+      // Reload proposal list
+      await getDaoDetail(currentDaoAddress)
+      getDaoProposals()
     }
   } catch (e) {
     openNotification("Execute proposal", e.message, MESSAGE_TYPE.ERROR, () => { })

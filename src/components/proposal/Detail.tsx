@@ -19,7 +19,7 @@ export const Details = () => {
             dataIndex: 'address',
             key: 'address',
             render: (_, record) => (
-                <Button icon={<CopyOutlined />}>{record.address}</Button>
+                <Button icon={<CopyOutlined />} onClick={() => navigator.clipboard.writeText(record.address)}>{record.address}</Button>
             )
         },
         {

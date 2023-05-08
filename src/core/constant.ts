@@ -6,16 +6,16 @@ export const daoTypeMap = {
 
 export const governanceConfigs= (percentage: number) => {
     if (percentage == 100) {
-        return "Required votes of all members"
+        return "All-member vote required for proposal execution."
     } else {
-        return `Percentage of Voters greater than ${percentage}`
+        return `Above ${percentage} %`
     }
 
 }
 
 export const votingConfigs = (open: boolean) => {
     if (open) {
-        return "Anyone can join"
+        return "Open to all"
     } else {
         return "Invited members only"
     }

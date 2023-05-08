@@ -66,10 +66,10 @@ export const DaoStatistic = () => {
         <Statistic title="Members" value={simpleData.members_length}  />
       </Col>
       <Col span={4}>
-        <Statistic title="Proposals" value={simpleData.proposals_length} precision={2}/>
+        <Statistic title="Proposals" value={simpleData.proposals_length}/>
       </Col>
       <Col span={4}>
-        <Statistic title="Treasury (AE)" value={formatAmount(simpleData.balance, { targetDenomination: AE_AMOUNT_FORMATS.AE })} precision={2}  />
+        <Statistic title="Treasury (AE)" value={formatAmount(simpleData.balance, { targetDenomination: AE_AMOUNT_FORMATS.AE })} precision={3}  />
       </Col>
       <Col span={4}>
         <p>Status</p>

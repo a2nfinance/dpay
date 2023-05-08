@@ -1,22 +1,29 @@
-import type { AppProps } from 'next/app'
-import 'antd/dist/reset.css'
+import { ConfigProvider, theme } from 'antd';
+import 'antd/dist/reset.css';
+import type { AppProps } from 'next/app';
 import { Provider } from "react-redux";
-import { PersistGate } from "redux-persist/integration/react";
-import { LayoutProvider } from 'src/layout/LayoutProvider'
-import { store, persistor } from 'src/controller/store';
-import React from 'react';
-
+import { store } from 'src/controller/store';
+import { LayoutProvider } from 'src/layout/LayoutProvider';
+const { defaultAlgorithm, darkAlgorithm } = theme;
 export default function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <Provider store={store}>
-      {/* <PersistGate loading={null} persistor={persistor}> */}
-      <LayoutProvider>
-      
-          <Component {...pageProps} />
- 
-      </LayoutProvider>
-      {/* </PersistGate> */}
-    </Provider >
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: '#cf2e2e',
+        },
+        algorithm: defaultAlgorithm
+      }}
+    >
+      <Provider store={store}>
+        {/* <PersistGate loading={null} persistor={persistor}> */}
+        <LayoutProvider>
 
+          <Component {...pageProps} />
+
+        </LayoutProvider>
+        {/* </PersistGate> */}
+      </Provider >
+    </ConfigProvider>
   )
 }

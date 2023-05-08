@@ -21,8 +21,8 @@ export const ReviewAndApprove = () => {
             <Descriptions title="DAO Settings" layout={"vertical"} column={{xs: 1, lg: 2}}>
                 <Descriptions.Item label={"Title"}>{title}</Descriptions.Item>
                 <Descriptions.Item label={"Description"}>{description}</Descriptions.Item>
-                <Descriptions.Item label={"Governance"}>{open ? "Anyone can join" : "Invited Member Only"}</Descriptions.Item>
-                <Descriptions.Item label={"Voting Configuration"}>{percentage === 100 ? "Require voting of all member" : `Above ${percentage} %`}</Descriptions.Item>
+                <Descriptions.Item label={"Governance"}>{open ? "Open to all" : "Invited Member Only"}</Descriptions.Item>
+                <Descriptions.Item label={"Voting Configuration"}>{percentage === 100 ? "All-member vote required for proposal execution." : `Above ${percentage} %`}</Descriptions.Item>
                 <Descriptions.Item label={"Members"}>
 
                     {

@@ -1,3 +1,4 @@
+import { CopyOutlined, DisconnectOutlined } from "@ant-design/icons";
 import { Button, Dropdown, MenuProps } from "antd";
 import Image from "next/image";
 import { useAppSelector } from "src/controller/hooks";
@@ -15,7 +16,8 @@ export const ConnectButton = () => {
                     Copy address 
                 </a>
             ),
-            onClick: () => {}
+            icon: <CopyOutlined />,
+            onClick: () => navigator.clipboard.writeText(address)
         },
         {
             key: '2',
@@ -24,6 +26,7 @@ export const ConnectButton = () => {
                     Disconnect
                 </a>
             ),
+            icon: <DisconnectOutlined />,
             onClick: () => disconnect() 
         }
     ];
