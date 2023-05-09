@@ -10,7 +10,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     <ConfigProvider
       theme={{
         token: {
-          colorPrimary: '#cf2e2e',
+          colorPrimary: '#ec417a',
         },
         algorithm: defaultAlgorithm
       }}

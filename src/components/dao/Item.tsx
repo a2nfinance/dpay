@@ -15,7 +15,7 @@ export const Item = (dao) => {
   const daoObj = dao.dao[1];
 
   return (
-    <Card title={daoObj.title} style={{marginTop: "5px", backgroundColor: "#f5f5f5"}} headStyle={{backgroundColor: "#d93737", color: "white"}}>
+    <Card title={daoObj.title} style={{marginTop: "5px", backgroundColor: "#f5f5f5"}} headStyle={{backgroundColor: "#ec417a", color: "white"}}>
 
       <Descriptions layout={"vertical"} column={{ xs: 1, xl: 2}}>
         <Descriptions.Item label={"Description"}>{daoObj.description}</Descriptions.Item>
