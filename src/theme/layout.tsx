@@ -7,6 +7,7 @@ const formLayout = {
 const formStyle = { 
     maxWidth: 900,
     marginLeft: 75,
+    paddingRight: 75
 }
 
 export {
