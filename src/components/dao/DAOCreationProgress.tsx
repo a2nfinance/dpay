@@ -12,7 +12,7 @@ export const DAOCreationProgress = () => {
         
     }, [step])
     return (
-        <Card title="DAO Creation Process">
+        <Card title="DAO Creation Process" style={{backgroundColor: "#f5f5f5"}} headStyle={{backgroundColor: "#d93737", color: "white"}}>
             <Steps
                 direction="vertical"
                 current={step}
