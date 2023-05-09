@@ -3,7 +3,7 @@ export default function Document() {
     return (
         <Html lang='en'>
             <Head>
-                <title>DPay - A DAO Platform for Payout on AEternity</title>
+                <title>DPAY - A DAO Platform for Payout on AEternity</title>
                 <meta name="title" content="A DAO Platform for Payout on AEternity"></meta>
                 <meta name="description" content="DPay - A2N Finance"></meta>
                 <link rel="icon" type="image/x-icon" href="/favicon.ico" />

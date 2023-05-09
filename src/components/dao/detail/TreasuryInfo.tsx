@@ -38,9 +38,9 @@ export const TreasuryInfo = () => {
     getMemberFund();
   }, [currentDaoAddress])
   return (
-    <Card title="Funds" size="default">
-      <Row gutter={6}>
-        <Col span={8}>
+    <Card title="Funding History" size="default">
+      <Row gutter={8}>
+        <Col span={12}>
           <Card bordered={false}>
             <Statistic
               title="Members"
@@ -50,7 +50,7 @@ export const TreasuryInfo = () => {
             />
           </Card>
         </Col>
-        <Col span={8}>
+        <Col span={12}>
           <Card bordered={false}>
             <Statistic
               title="Contributors"
@@ -60,7 +60,7 @@ export const TreasuryInfo = () => {
             />
           </Card>
         </Col>
-        <Col span={8}>
+        {/* <Col span={8}>
           <Card bordered={false}>
             <Statistic
               title="Others"
@@ -69,7 +69,7 @@ export const TreasuryInfo = () => {
               valueStyle={{ color: '#cf1322' }}
             />
           </Card>
-        </Col>
+        </Col> */}
       </Row>
       <Divider />
       <Table dataSource={[

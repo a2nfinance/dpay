@@ -61,21 +61,21 @@ export const DaoStatistic = () => {
   }, [newMember])
 
   return (
-    <Row gutter={6}>
-      <Col span={4}>
+    <Row gutter={8}>
+      <Col span={3}>
         <Statistic title="Members" value={simpleData.members_length}  />
       </Col>
-      <Col span={4}>
+      <Col span={3}>
         <Statistic title="Proposals" value={simpleData.proposals_length}/>
       </Col>
-      <Col span={4}>
+      <Col span={3}>
         <Statistic title="Treasury (AE)" value={formatAmount(simpleData.balance, { targetDenomination: AE_AMOUNT_FORMATS.AE })} precision={3}  />
       </Col>
-      <Col span={4}>
+      <Col span={3}>
         <p>Status</p>
         <p>{simpleData.status == 1 ? "Active" : "Inactive"}</p>
       </Col>
-      <Col span={8}>
+      <Col span={12}>
         <p>Actions</p>
         <Space direction="horizontal">
           <Button onClick={showDrawerSubDao} type="primary" ghost>New SubDao</Button>

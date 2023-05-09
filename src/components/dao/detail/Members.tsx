@@ -3,16 +3,12 @@ import { CopyOutlined } from "@ant-design/icons";
 import { Button, Table, Tag } from "antd";
 import { useEffect } from "react";
 import { useAppSelector } from "src/controller/hooks";
-import { getMembers, removeMember as removeMemberAction } from "src/core";
+import { getMembers, leaveDao, removeMember as removeMemberAction } from "src/core";
 
 export const Members = () => {
-    const {members, currentDaoAddress} = useAppSelector(state => state.daoDetail)
-    const {removeMember} = useAppSelector(state => state.process)
-    const colorMap = {
-        "Instant": "blue",
-        "Locked Time": "geekblue",
-        "Stream": "purple"
-    }
+    const {members, currentDaoAddress, simpleData} = useAppSelector(state => state.daoDetail)
+    const {address} = useAppSelector(state => state.wallet)
+    const {removeMember, leave} = useAppSelector(state => state.process)
  
     const columns = [
         {
@@ -26,9 +22,14 @@ export const Members = () => {
         {
             title: 'Actions',
             key: 'actions',
-            render: (_, record) => (
-                <Button loading={removeMember.processing} onClick={() => removeMemberAction(record.address)} danger>Remove</Button>
-            )
+            render: (_, record) => {
+                if (simpleData.open && address === record.address) {
+                    return  <Button loading={leave.processing} onClick={() => leaveDao()} danger>Leave</Button>
+                } else {
+                    return  <Button loading={removeMember.processing} onClick={() => removeMemberAction(record.address)} danger>Remove</Button>
+                }
+               
+            }
 
         },
     ];

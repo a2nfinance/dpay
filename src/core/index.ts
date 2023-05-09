@@ -117,9 +117,9 @@ const scanForWallets = async () => {
         newWallet = newWallet || Object.values(wallets)[0]
         console.log(`Do you want to connect to wallet ${newWallet.info.name} with id ${newWallet.info.id}`)
         stopScan()
- 
+
         await aeSdk.connectToWallet(newWallet.getConnection())
-      
+
         walletConnected = true
         const { address: { current } } = await aeSdk.subscribeAddress('subscribe', 'connected')
 
@@ -240,7 +240,7 @@ const createDAO = async () => {
     openNotification("Create DAO", `Create ${daoForm.title} successful`, MESSAGE_TYPE.SUCCESS, () => { })
     //Reload DAOs
     getDaos();
-  } catch(e) {
+  } catch (e) {
     openNotification("Create DAO", e.message, MESSAGE_TYPE.ERROR, () => { })
   }
 
@@ -480,7 +480,7 @@ const removeMember = async (address: string) => {
       getDaoDetail(currentDaoAddress)
       getMembers();
     }
-  } catch(e) {
+  } catch (e) {
     openNotification("Remove Member", e.message, MESSAGE_TYPE.ERROR, () => { })
   }
 
@@ -489,21 +489,21 @@ const removeMember = async (address: string) => {
     att: processKeys.processing,
     value: false
   }))
-  
+
 }
 const joinDao = async (address: string) => {
   try {
 
-      store.dispatch(updateProcessStatus({
-        actionName: actionNames.join,
-        att: processKeys.processing,
-        value: true
-      }))
-      await connectDao(address);
-      const tx = await daoContract.join();
-      console.log(tx.decodedResult);
-      openNotification("Join Dao", `You joined successful`, MESSAGE_TYPE.SUCCESS, () => { })
-    
+    store.dispatch(updateProcessStatus({
+      actionName: actionNames.join,
+      att: processKeys.processing,
+      value: true
+    }))
+    await connectDao(address);
+    const tx = await daoContract.join();
+    console.log(tx.decodedResult);
+    openNotification("Join Dao", `You joined successful`, MESSAGE_TYPE.SUCCESS, () => { })
+
   } catch (e) {
     openNotification("Join Dao", e.message, MESSAGE_TYPE.ERROR, () => { })
   }
@@ -515,19 +515,21 @@ const joinDao = async (address: string) => {
   }))
 }
 
-const leaveDao = async (address: string) => {
+const leaveDao = async () => {
   try {
-
-      store.dispatch(updateProcessStatus({
-        actionName: actionNames.leave,
-        att: processKeys.processing,
-        value: true
-      }))
-      await connectDao(address);
-      const tx = await daoContract.leave();
-      console.log(tx.decodedResult);
-      openNotification("Leave Dao", `You left successful`, MESSAGE_TYPE.SUCCESS, () => { })
-    
+    let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
+    store.dispatch(updateProcessStatus({
+      actionName: actionNames.leave,
+      att: processKeys.processing,
+      value: true
+    }))
+    await connectDao(currentDaoAddress);
+    const tx = await daoContract.leave();
+    console.log(tx.decodedResult);
+    openNotification("Leave Dao", `You left successful`, MESSAGE_TYPE.SUCCESS, () => { })
+    // Reload member list
+    getDaoDetail(currentDaoAddress)
+    getMembers();
   } catch (e) {
     openNotification("Leave Dao", e.message, MESSAGE_TYPE.ERROR, () => { })
   }

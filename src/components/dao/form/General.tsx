@@ -33,7 +33,7 @@ export const General = () => {
                 <Radio.Group>
                     <Radio value={1}>Membership DAO (Multisig)</Radio>
                     <Radio disabled value={2}>Token-based DAO (coming soon)</Radio>
-                    <Radio disabled value={3}>Non-Fungible Token (NFT)-based DAO (coming soon)</Radio>
+                    <Radio disabled value={3}>NFT-based DAO (coming soon)</Radio>
                 </Radio.Group>
             </Form.Item>
             <p><strong>Membership DAO (Multisig):</strong> Small organization with a few members who are likely to stick around. Members can be added and removed by a vote of existing members.</p>
