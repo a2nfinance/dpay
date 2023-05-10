@@ -33,7 +33,7 @@ export const LayoutProvider = (props: Props) => {
             <Sider onCollapse={() => setCollapsed(!collapsed)} collapsible collapsed={collapsed}>
                 <div style={{ height: 50, margin: 16 }}>
                     {
-                        !collapsed ? <Image src={"/dpay.png"} alt="dpay" width={160} height={50} /> : <Image src={"/d.png"} alt="dpay" width={50} height={50} />
+                        !collapsed ? <Image src={"/logo.png"} alt="dpay" width={160} height={50} /> : <Image src={"/d.png"} alt="dpay" width={50} height={50} />
                     }
                 </div>
 
