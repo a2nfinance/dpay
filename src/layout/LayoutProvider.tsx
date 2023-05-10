@@ -1,21 +1,17 @@
-import React, { useState } from "react";
-import Icon, {
+import {
+    CodeOutlined,
+    GithubOutlined,
     HomeOutlined,
-    MenuFoldOutlined,
-    MenuUnfoldOutlined,
-    TeamOutlined,
-    TwitterOutlined,
-    UploadOutlined,
-    UserOutlined,
-    VideoCameraOutlined,
-
+    PlusOutlined,
+    TwitterOutlined
 } from '@ant-design/icons';
+import React, { useState } from "react";
 
-import { Layout, Menu, Button, theme, Input, Space, Affix, Form, Switch } from 'antd';
+import { Form, Input, Layout, Menu, Space, theme } from 'antd';
 
+import Image from "next/image";
 import { useRouter } from "next/router";
 import { ConnectButton } from "src/components/common/ConnectButton";
-import Image from "next/image";
 const { Header, Sider, Content, Footer } = Layout;
 
 interface Props {
@@ -23,6 +19,7 @@ interface Props {
 }
 
 export const LayoutProvider = (props: Props) => {
+    const [bottom, setBottom] = useState(10);
     const router = useRouter();
     const [collapsed, setCollapsed] = useState(false);
     const {
@@ -33,7 +30,7 @@ export const LayoutProvider = (props: Props) => {
 
     return (
         <Layout style={{ minHeight: '100vh' }}>
-            <Sider trigger={null} collapsible collapsed={collapsed}>
+            <Sider onCollapse={() => setCollapsed(!collapsed)} collapsible collapsed={collapsed}>
                 <div style={{ height: 50, margin: 16 }}>
                     {
                         !collapsed ? <Image src={"/dpay.png"} alt="dpay" width={160} height={50} /> : <Image src={"/d.png"} alt="dpay" width={50} height={50} />
@@ -44,6 +41,7 @@ export const LayoutProvider = (props: Props) => {
                     theme="dark"
                     mode="inline"
                     defaultSelectedKeys={['1']}
+                    style={{fontSize: "15px", fontWeight: "500"}}
                     items={[
                         {
                             key: '1',
@@ -55,11 +53,53 @@ export const LayoutProvider = (props: Props) => {
                         {
                             key: '2',
                             //@ts-ignore
-                            icon: <TeamOutlined />,
+                            icon: <PlusOutlined />,
                             label: 'New Dao',
                             onClick: () => router.push("/dao/new")
                         },
                         { type: 'divider' }
+                    ]}
+                />
+
+
+                <Menu
+                    style={{position: "absolute", width: "-webkit-fill-available", bottom: "50px", fontSize: "14px", fontWeight: "500"}}
+                    theme="dark"
+                    mode="inline"
+                    items={[
+                        {
+                            key: '3',
+                            label: 'DPAY v1.0.0-Beta',
+                        },
+                        {
+                            key: '4',
+                            //@ts-ignore
+                            icon: <CodeOutlined />,
+                            label: 'Documentation',
+                            onClick: () => router.push("/dao/new")
+                        },
+                        {
+                            key: '5',
+                            //@ts-ignore
+                            icon: <GithubOutlined />,
+                            label: 'Github',
+                            onClick: () => router.push("/dao/new")
+                        },
+                        {
+                            key: '6',
+                            //@ts-ignore
+                            icon: <TwitterOutlined />,
+                            label: 'Twitter',
+                            onClick: () => router.push("/dao/new")
+                        },
+                        // {
+                        //     key: '7',
+                        //     //@ts-ignore
+                        //     icon: <DiscordIcon color="white" />,
+                        //     label: 'Discord',
+                        //     onClick: () => router.push("/dao/new")
+                        // },
+
                     ]}
                 />
 
@@ -69,18 +109,11 @@ export const LayoutProvider = (props: Props) => {
                 <Header //@ts-ignore
                     style={{ padding: 0, background: colorBgContainer }}>
                     <Space align="center" style={{ display: "flex", justifyContent: "space-between" }}>
-                        <Button
-                            type="text"
-                            icon={collapsed ?
-                                //@ts-ignore
-                                <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-                            onClick={() => setCollapsed(!collapsed)}
-                            style={{
-                                fontSize: '16px',
-                                width: 64,
-                                height: 64,
-                            }}
-                        />
+                        <div style={{
+                            fontSize: '16px',
+                            width: 64,
+                            height: 64,
+                        }}></div>
                         <Form layout="inline">
 
                             <Form.Item>
@@ -92,7 +125,7 @@ export const LayoutProvider = (props: Props) => {
                                     onSearch={onSearch}
                                 />
                             </Form.Item>
-                    
+
                             {/* <Form.Item>
                                 <Switch checkedChildren={<Image src={"/light.svg"} width={16} height={16} alt="Light"/>}
                                  
