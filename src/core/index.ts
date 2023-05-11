@@ -291,8 +291,8 @@ const createProposal = async (formValues: {
   payment_type: number,
   description: string,
   recipients: { address: string, amount: number }[],
-  startTime?: number,
-  stopTime?: number
+  start_time?: string,
+  stop_time?: string
 }) => {
   try {
     let currentDaoAddress = store.getState().daoDetail.currentDaoAddress;
@@ -307,10 +307,10 @@ const createProposal = async (formValues: {
       let stopTime = 0;
       if (formValues.payment_type === 2) {
 
-        startTime = new Date(formValues.startTime).getTime();
+        startTime = new Date(formValues.start_time).getTime();
       } else if (formValues.payment_type === 3) {
-        startTime = new Date(formValues.startTime).getTime();
-        stopTime = new Date(formValues.stopTime).getTime();
+        startTime = new Date(formValues.start_time).getTime();
+        stopTime = new Date(formValues.stop_time).getTime();
       }
       console.log(formValues.title,
         formValues.description,
