@@ -1,4 +1,4 @@
-import { Button, Descriptions, Divider, Form, Tag, Typography } from "antd";
+import { Button, Col, Descriptions, Divider, Form, Row, Tag, Typography } from "antd";
 import { useAppSelector } from "src/controller/hooks";
 import { createDAO as createDAOAction } from "src/core";
 import { formStyle } from "src/theme/layout";
@@ -18,19 +18,24 @@ export const ReviewAndApprove = () => {
             style={formStyle}
             autoComplete="off"
         >
-            <Descriptions title="DAO Settings" layout={"vertical"} column={{xs: 1, lg: 2}}>
+            <Descriptions title="DAO Settings" layout={"vertical"} column={{ xs: 1, lg: 2 }}>
                 <Descriptions.Item label={"Title"}>{title}</Descriptions.Item>
                 <Descriptions.Item label={"Description"}>{description}</Descriptions.Item>
                 <Descriptions.Item label={"Governance"}>{open ? "Open to all" : "Invited Member Only"}</Descriptions.Item>
                 <Descriptions.Item label={"Voting Configuration"}>{percentage === 100 ? "All-member vote required for proposal execution." : `Above ${percentage} %`}</Descriptions.Item>
-                <Descriptions.Item label={"Members"}>
+                <Descriptions.Item label={"Members"} contentStyle={{display: "block"}}>
+             
+                        {
+                            members.map((member, index) => {
+                                return (
+                                      
+                                        <Tag key={`address-${index}`} color="blue" style={{marginBottom: "5px"}}>{member.address}</Tag>
+                                       
+                                    )
 
-                    {
-                        members.map((member, index) => {
-                            return <Tag key={`address-${index}`} color="default">{member.address}</Tag>
-
-                        })
-                    }
+                            })
+                        }
+                   
                 </Descriptions.Item>
             </Descriptions>
             <Divider />

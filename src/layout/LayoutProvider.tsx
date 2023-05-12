@@ -66,6 +66,7 @@ export const LayoutProvider = (props: Props) => {
                     style={{position: "absolute", width: "-webkit-fill-available", bottom: "50px", fontSize: "14px", fontWeight: "500"}}
                     theme="dark"
                     mode="inline"
+                    selectable={false}
                     items={[
                         {
                             key: '3',
@@ -76,21 +77,21 @@ export const LayoutProvider = (props: Props) => {
                             //@ts-ignore
                             icon: <CodeOutlined />,
                             label: 'Documentation',
-                            onClick: () => router.push("/dao/new")
+                            onClick: () => window.open("https://github.com/a2nfinance/dpay/blob/master/README.md", "_blank")
                         },
                         {
                             key: '5',
                             //@ts-ignore
                             icon: <GithubOutlined />,
                             label: 'Github',
-                            onClick: () => router.push("/dao/new")
+                            onClick: () => window.open("https://github.com/a2nfinance/dpay", "_blank")
                         },
                         {
                             key: '6',
                             //@ts-ignore
                             icon: <TwitterOutlined />,
                             label: 'Twitter',
-                            onClick: () => router.push("/dao/new")
+                            onClick: () => {}
                         },
                         // {
                         //     key: '7',

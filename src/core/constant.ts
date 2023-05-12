@@ -4,7 +4,7 @@ export const daoTypeMap = {
     3: "Non-Fungible Token (NFT)-based DAO"
 }
 
-export const governanceConfigs= (percentage: number) => {
+export const votingConfigs= (percentage: number) => {
     if (percentage == 100) {
         return "All-member vote required for proposal execution."
     } else {
@@ -13,7 +13,7 @@ export const governanceConfigs= (percentage: number) => {
 
 }
 
-export const votingConfigs = (open: boolean) => {
+export const governanceConfigs = (open: boolean) => {
     if (open) {
         return "Open to all"
     } else {

@@ -40,8 +40,8 @@ export const NewSubDao = () => {
             <Card size="small" title="Parent DAO">
                 <Descriptions column={{ xs: 1, lg: 2 }}>
                     <Descriptions.Item label="Type">{daoTypeMap[simpleData.dao_type]}</Descriptions.Item>
-                    <Descriptions.Item label="Voting">{votingConfigs(simpleData.open)}</Descriptions.Item>
-                    <Descriptions.Item label="Governance">{governanceConfigs(simpleData.percentage)}</Descriptions.Item>
+                    <Descriptions.Item label="Governance">{governanceConfigs(simpleData.open)}</Descriptions.Item>
+                    <Descriptions.Item label="Voting">{votingConfigs(simpleData.percentage)}</Descriptions.Item>
                 </Descriptions>
             </Card>
             <br />
