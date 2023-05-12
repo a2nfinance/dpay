@@ -56,13 +56,21 @@ List the technologies and tools used to build this app, including programming la
 ## Smart Contracts
 Our main smart contract is DAORegistry, which is used to create and store basic data for DAOs and SubDAOs.
 
+![](docs/diagrams/DAOStructure.jpg)
+
 ### Create DAO process
 
-### Create SubDAO process
+![](docs/diagrams/DAOCreationProcess.jpg)
 
 ### Create Proposal process
 
+![](docs/diagrams/ProposalCreationProcess.jpg)
+
 ### Other processes
+
+Other processes include the Fund Process, Add/Remove Member Processes, and Vote/Execute Proposal Processes.
+
+You can see detailed diagrams [here](docs/processes.md)
 
 
 
