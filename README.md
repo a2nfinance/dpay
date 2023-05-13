@@ -34,6 +34,7 @@ These are instructions on how to install and run your dApp. Include prerequisite
 - To run unit tests:
     - For DAORegistry contract: `npm run test-dao-registry`
     - For DAO contract: `npm run test-dao`
+    - for all smart contracts and generate reports: `npm run test`
 - Run this app on Dev mode: `npm run dev`
 - Run this app on Production mode: `npm run build` and `npm run start`
 - If you're using Windows OS, you have to use WSL2 to run deploy and test commands.
@@ -52,6 +53,11 @@ List the technologies and tools used to build this app, including programming la
 - Aepp-sdk
 - Aeproject: for testing purpose.
 - Ant Design: to develop UI/UX.
+## Test Reports
+
+DPAY uses AEproject, Mocha, and MochaAwesome to do automation test.
+
+You can see reports at here: [https://dpay.a2n.finance/test-report/dpay.html](https://dpay.a2n.finance/test-report/dpay.html)
 
 ## Smart Contracts
 Our main smart contract is DAORegistry, which is used to create and store basic data for DAOs and SubDAOs.
