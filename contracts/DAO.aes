@@ -66,7 +66,7 @@ payable contract DAO :  DAOInterface =
 
     /*
     * @todo: Get the simple DAO data
-    * @returns: simple_state
+    * @return: simple_state
     */
     entrypoint get(): simple_state =
         {
@@ -236,7 +236,7 @@ payable contract DAO :  DAOInterface =
 
 
     /*
-    * @todo: add member
+    * @todo: add a member
     * @return: success or nothing
     */
     stateful entrypoint add_member(new_member: address): bool =
@@ -255,7 +255,7 @@ payable contract DAO :  DAOInterface =
         true 
 
     /*
-    * @todo: add member
+    * @todo: remove a member
     * @return: success or nothing
     */
     stateful entrypoint remove_member(member: address): bool =
