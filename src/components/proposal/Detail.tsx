@@ -69,7 +69,7 @@ export const Details = () => {
                             <Button disabled={vote.processing || currentProposal.executed} onClick={() => voteAction(currentProposal.index, false)}>Unvote</Button>
                             {
                                 ((countVote(currentProposal.voters) * 100 / parseInt(simpleData.members_length.toString())) >= parseInt(simpleData.percentage.toString())) ? (<>
-                                    <Button disabled={currentProposal.executed} type="primary" loading={executeProposal.processing} onClick={() => executeProposalAction(currentProposal.index)}>Executed Proposal</Button>
+                                    <Button disabled={currentProposal.executed} type="primary" loading={executeProposal.processing} onClick={() => executeProposalAction(currentProposal.index)}>Execute Proposal</Button>
                                 </>) : (<></>)
                             }
                         </>) : (<>
