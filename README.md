@@ -34,7 +34,7 @@ These are instructions on how to install and run your dApp. Include prerequisite
 - To run unit tests:
     - For DAORegistry contract: `npm run test-dao-registry`
     - For DAO contract: `npm run test-dao`
-    - for all smart contracts and generate reports: `npm run test`
+    - For all smart contracts and generate reports: `npm run test`
 - Run this app on Dev mode: `npm run dev`
 - Run this app on Production mode: `npm run build` and `npm run start`
 - If you're using Windows OS, you have to use WSL2 to run deploy and test commands.
