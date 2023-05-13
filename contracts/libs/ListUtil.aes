@@ -1,3 +1,7 @@
+/*
+* @author: AEternity smart contract examples.
+* @todo: handle a List.
+*/
 namespace ListUtil =
   // comparing possible expenses and given tokens
     function validate_expenses(recipients_and_tokens: list(address * int)) : bool = 

@@ -1,9 +1,16 @@
-
 @compiler >= 7
+
 include "String.aes"
 include "List.aes"
 include "Pair.aes"
 include "Option.aes"
+
+/*
+* @author: levia2n
+* @todo: to generate ACIs using Contract Editor.
+* @version: 1.0.0-beta
+*/
+
 
 namespace ListUtil =
   // comparing possible expenses and given tokens

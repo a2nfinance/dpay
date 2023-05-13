@@ -1,5 +1,10 @@
 @compiler >= 7
 
+/*
+* @author: levia2n
+* @todo: provide an interface for DAO contract.
+* @version: 1.0.0-beta
+*/
 contract interface DAOInterface = 
     entrypoint init : (address, string, string, int, int, bool, int, int, list(address), map(int, 'a), map(address, int), map(address, int)) => void
     entrypoint get : () => unit

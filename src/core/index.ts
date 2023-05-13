@@ -140,11 +140,16 @@ const convertCtToAk = (address: string) => {
   return address.replace("ct", "ak");
 }
 const connect = async () => {
-  await initialize()
-  await scanForWallets()
-  if (!daoRegistryContract) {
-    daoRegistryContract = await aeSdk.initializeContract({ aci: DaoRegistryACI, address: CONTRACT_ADDRESS })
+  try {
+    await initialize()
+    await scanForWallets()
+    if (!daoRegistryContract) {
+      daoRegistryContract = await aeSdk.initializeContract({ aci: DaoRegistryACI, address: CONTRACT_ADDRESS })
+    }
+  } catch (e) {
+    openNotification("Connect wallet", e.message, MESSAGE_TYPE.ERROR, () => { })
   }
+ 
 }
 
 const initReadDaoRegistryContract = async () => {

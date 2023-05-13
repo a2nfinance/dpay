@@ -1,11 +1,18 @@
 @compiler >= 7
+
 include "String.aes"
 include "List.aes"
 include "./interfaces/DAOInterface.aes"
 include "DAO.aes"
 include "Pair.aes"
 
+/*
+* @author: levia2n
+* @todo: Manage DAO & SubDAOs
+* @version: 1.0.0-beta
+*/
 main contract DAORegistry = 
+    // Simple DAO data
     record dao = {
         owner: address,
         title: string,
@@ -15,16 +22,27 @@ main contract DAORegistry =
         created_date: int
         }
 
+    // DAORegistry state
     record state = {
         daos: map(address, dao),
         sub_daos: map(address, list(address))
         }
 
+    // Init function
     entrypoint init() = {
         daos= {},
         sub_daos= {}
         }
 
+    /*
+    * @todo: Create DAO or SubDAO
+    * @params:
+    * - percentage: a required number of percentage for proposal execution
+    * - open: true or false : invited members only or open to all
+    * - dao_type: 1= Multisig, 2=Token-based, 3=NFT-based
+    * - members: a list of initial member addresses
+    * - parent_dao: option(parent DAO address)
+    */
     stateful entrypoint create_dao(title: string, description: string, percentage: int, open: bool, dao_type: int, members: list(address), parent_dao: option(address)) =
         let new_dao = {
             owner= Call.caller,
@@ -40,12 +58,17 @@ main contract DAORegistry =
             member_fund= {},
             contributor_fund= {}
             }
+
+
+        // If there is any existing DAO, a new DAO is created by Chain.clone with a different initital state.   
+        // If there is no existing DAO, a new DAO is created by Chain.create with a initital state. 
         if (Map.size(state.daos) > 0) 
             switch(Chain.clone(ref=Address.to_contract(Pair.fst(List.get(0, Map.to_list(state.daos)))), protected=true, new_dao))
                 None => abort("!DAO")
                 Some(created_dao) =>
                     put(state { daos[created_dao.address] = { owner= Call.caller, title= title, description= description, open= open, dao_type=dao_type, created_date=Chain.timestamp  } })
 
+                    // Check if new DAO is a SubDAO
                     if (Option.is_some(parent_dao))
                         let parent_dao_address = Option.force(parent_dao)
                         let map_exist = Map.member(parent_dao_address, state.sub_daos)
@@ -57,7 +80,8 @@ main contract DAORegistry =
             let created_dao = Chain.create(new_dao): DAO
 
             put(state { daos[created_dao.address] = { owner= Call.caller, title= title, description= description, open= open, dao_type=dao_type, created_date=Chain.timestamp  } })
-
+            
+            // Check if new DAO is a SubDAO
             if (Option.is_some(parent_dao))
                 let parent_dao_address = Option.force(parent_dao)
                 let map_exist = Map.member(parent_dao_address, state.sub_daos)
@@ -66,12 +90,21 @@ main contract DAORegistry =
                 else
                     put(state { sub_daos[parent_dao_address] = [created_dao.address] })
 
+    /*
+    * @todo: get all DAOs
+    * @return: a list of tuple (address, DAO)
+    */
     entrypoint get_daos(): list(address * dao) =
         Map.to_list(state.daos)
     
+    /*
+    * @todo: get SubDAOs of a DAO
+    * @return: a list of tuple (address, DAO)
+    */
     entrypoint get_sub_daos_of(parent_dao: address): list(address * dao) = 
         let is_exist_sub_dao = Map.member(parent_dao, state.sub_daos)
 
+        // Check a DAO is existing or not
         if (is_exist_sub_dao)
             let sub_daos_list = state.sub_daos[parent_dao]
             let sub_daos = List.filter((d: (address * dao)) => List.contains(Pair.fst(d), sub_daos_list), Map.to_list(state.daos))
