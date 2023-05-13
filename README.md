@@ -82,6 +82,14 @@ You can see detailed diagrams [here](docs/processes.md)
 
 ## Usage
 To use this app on any web browser, use this url: [https://dpay.a2n.finance](https://dpay.a2n.finance)
+- To create DAO: click on New DAO menu
+- To create SubDAO: select a DAO, click on New SubDAO button
+- To create a proposal: select a DAO/SubDAO, click on New Proposal button
+- To fund a DAO or SubDAO, we have two ways: 
+    - Select DAO, Click on Send Fund button
+    - Select DAO, Create a payment proposal within a DAO and add recipient addresses.
+- To add and remove member: select a DAO, click on Add or Remove Member button.
+- To Join an openned DAO, click on Join button.
 
 
 ## Contributing
