@@ -54,7 +54,6 @@ describe('DAORegistry', () => {
   it("DAORegistry: create sub dao", async ()=> {
     await contract.create_dao("hello", "hello", 100, true, 1, [utils.getDefaultAccounts()[1].address, utils.getDefaultAccounts()[2].address], null, {onAccount: utils.getDefaultAccounts()[1]})
     const { decodedResult } = await contract.get_daos();
-    console.log(decodedResult);
     await contract.create_dao(
       "hello", 
       "hello", 
@@ -67,7 +66,6 @@ describe('DAORegistry', () => {
       {onAccount: utils.getDefaultAccounts()[1]}
       )
     const res = await contract.get_daos();
-    console.log(res.decodedResult);
     assert.equal(res.decodedResult.length, 2);
   })
 });
