@@ -5,6 +5,7 @@ DPAY allows users to create DAOs and SubDAOs, create payment proposals, conduct 
 DPAY works with Hero Wallet and on the Æternity mainnet.
 
 Web URL: [DPAY](https://dpay.a2n.finance)
+
 Main smart contract: [DAORegistry](https://explorer.aeternity.io/contracts/transactions/ct_YeezknvdFnELysCujzkWFrUKX2dvCcBgWHDsNip3pN7Qw7hg2)
 
 ## Getting Started
