@@ -5,6 +5,7 @@ DPAY allows users to create DAOs and SubDAOs, create payment proposals, conduct 
 DPAY works with Hero Wallet and on the Æternity mainnet.
 
 Web URL: [DPAY](https://dpay.a2n.finance)
+Main smart contract: [DAORegistry](https://explorer.aeternity.io/contracts/transactions/ct_YeezknvdFnELysCujzkWFrUKX2dvCcBgWHDsNip3pN7Qw7hg2)
 
 ## Getting Started
 These are instructions on how to install and run your dApp. Include prerequisites, installation steps, and commands needed to start the application.
@@ -60,7 +61,7 @@ DPAY uses AEproject, Mocha, and MochaAwesome to do automation test.
 You can see reports at here: [https://dpay.a2n.finance/test-report/dpay.html](https://dpay.a2n.finance/test-report/dpay.html)
 
 ## Smart Contracts
-Our main smart contract is DAORegistry, which is used to create and store basic data for DAOs and SubDAOs.
+Our main smart contract is [DAORegistry](https://explorer.aeternity.io/contracts/transactions/ct_YeezknvdFnELysCujzkWFrUKX2dvCcBgWHDsNip3pN7Qw7hg2), which is used to create and store basic data for DAOs and SubDAOs.
 
 ![](docs/diagrams/DAOStructure.jpg)
 
