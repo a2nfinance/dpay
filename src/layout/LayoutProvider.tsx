@@ -54,7 +54,7 @@ export const LayoutProvider = (props: Props) => {
                             key: '2',
                             //@ts-ignore
                             icon: <PlusOutlined />,
-                            label: 'New Dao',
+                            label: 'New DAO',
                             onClick: () => router.push("/dao/new")
                         },
                         { type: 'divider' }
