@@ -1,10 +1,9 @@
-import { AeSdkAepp, Node, walletDetector, BrowserWindowMessageConnection, CompilerHttp, AE_AMOUNT_FORMATS, toAe, formatAmount } from '@aeternity/aepp-sdk';
+import { AeSdkAepp, Node, walletDetector, BrowserWindowMessageConnection, CompilerHttp, AE_AMOUNT_FORMATS, toAe, formatAmount, RpcConnectionDenyError } from '@aeternity/aepp-sdk';
 import { store } from "src/controller/store";
 import { setProps } from 'src/controller/wallet/walletSlice';
 import { DaoRegistryACI, DaoACI } from './aci';
 import { setDaoProps } from 'src/controller/dao/daoSlice';
 import { setDaoDetailProps } from 'src/controller/dao/daoDetailSlice';
-import Router from 'next/router';
 import { notification } from 'antd';
 import { actionNames, processKeys, updateProcessStatus } from 'src/controller/process/processSlice';
 
@@ -31,7 +30,7 @@ let daoContract = null;
 const MESSAGE_TYPE = {
   SUCCESS: "success",
   ERROR: "error",
-  INFO: "INFO",
+  INFO: "info",
   WARNING: "warning",
   OPEN: "open",
   DESTROY: "destroy"
@@ -112,29 +111,51 @@ const initialize = async () => {
 const scanForWallets = async () => {
   try {
     if (!walletConnected) {
-      const handleWallets = async ({ wallets, newWallet }) => {
+      return new Promise((resolve) => {
+        let stopScan;
 
-        newWallet = newWallet || Object.values(wallets)[0]
-        console.log(`Do you want to connect to wallet ${newWallet.info.name} with id ${newWallet.info.id}`)
-        stopScan()
+        const handleWallets = async ({ wallets, newWallet }) => {
+          newWallet = newWallet || Object.values(wallets)[0];
+          console.log(`connect to wallet ${newWallet.info.name} with id ${newWallet.info.id}`)
+          stopScan();
+          resolve(newWallet.getConnection());
+        };
 
-        await aeSdk.connectToWallet(newWallet.getConnection())
-
-        walletConnected = true
-        const { address: { current } } = await aeSdk.subscribeAddress('subscribe', 'connected')
-
-        store.dispatch(setProps({
-          att: "address",
-          value: Object.keys(current)[0]
-        }))
-      }
-      const scannerConnection = new BrowserWindowMessageConnection();
-      const stopScan = walletDetector(scannerConnection, handleWallets);
+        const scannerConnection = new BrowserWindowMessageConnection();
+        stopScan = walletDetector(scannerConnection, handleWallets);
+      });
     }
   } catch (e) {
     openNotification("Connect wallet", e.message, MESSAGE_TYPE.ERROR, () => { })
   }
 
+}
+
+const connectToWallet = async () => {
+  try {
+    const connection = await scanForWallets();
+    try {
+      await aeSdk.connectToWallet(connection);
+
+      const { address: { current } } = await aeSdk.subscribeAddress('subscribe', 'connected')
+
+      store.dispatch(setProps({
+        att: "address",
+        value: Object.keys(current)[0]
+      }))
+      walletConnected = true;
+    } catch (error) {
+      // @ts-ignore
+      connection.disconnect();
+      aeSdk.rpcClient = null;
+      openNotification("Connect wallet", error.message, MESSAGE_TYPE.ERROR, () => { })
+
+    }
+
+
+  } finally {
+    //this.walletConnecting = false;
+  }
 }
 const convertCtToAk = (address: string) => {
   return address.replace("ct", "ak");
@@ -142,14 +163,14 @@ const convertCtToAk = (address: string) => {
 const connect = async () => {
   try {
     await initialize()
-    await scanForWallets()
+    await connectToWallet();
     if (!daoRegistryContract) {
       daoRegistryContract = await aeSdk.initializeContract({ aci: DaoRegistryACI, address: CONTRACT_ADDRESS })
     }
   } catch (e) {
     openNotification("Connect wallet", e.message, MESSAGE_TYPE.ERROR, () => { })
   }
- 
+
 }
 
 const initReadDaoRegistryContract = async () => {
@@ -161,7 +182,7 @@ const initReadDaoRegistryContract = async () => {
 
 const connectDao = async (daoAddress: string) => {
   await initialize()
-  await scanForWallets()
+  await connectToWallet();
   if (!daoContract) {
     daoContract = await aeSdk.initializeContract({ aci: DaoACI, address: daoAddress })
   }
@@ -215,7 +236,6 @@ const getDaoDetail = async (address: string) => {
     store.dispatch(setDaoDetailProps({ att: "currentDaoAddress", value: address }))
     await initReadDaoContract(address);
     const tx = await daoContract.get();
-    //const tx = await contract.create_dao("hello", "hello", [], null);
     console.log(tx.decodedResult);
     store.dispatch(setDaoDetailProps({ att: "simpleData", value: tx.decodedResult }))
   } catch (e) {
