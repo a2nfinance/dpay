@@ -110,21 +110,21 @@ const initialize = async () => {
 
 const scanForWallets = async () => {
   try {
-    if (!walletConnected) {
-      return new Promise((resolve) => {
-        let stopScan;
 
-        const handleWallets = async ({ wallets, newWallet }) => {
-          newWallet = newWallet || Object.values(wallets)[0];
-          console.log(`connect to wallet ${newWallet.info.name} with id ${newWallet.info.id}`)
-          stopScan();
-          resolve(newWallet.getConnection());
-        };
+    return new Promise((resolve) => {
+      let stopScan;
 
-        const scannerConnection = new BrowserWindowMessageConnection();
-        stopScan = walletDetector(scannerConnection, handleWallets);
-      });
-    }
+      const handleWallets = async ({ wallets, newWallet }) => {
+        newWallet = newWallet || Object.values(wallets)[0];
+        console.log(`connect to wallet ${newWallet.info.name} with id ${newWallet.info.id}`)
+        stopScan();
+        resolve(newWallet.getConnection());
+      };
+
+      const scannerConnection = new BrowserWindowMessageConnection();
+      stopScan = walletDetector(scannerConnection, handleWallets);
+    });
+
   } catch (e) {
     openNotification("Connect wallet", e.message, MESSAGE_TYPE.ERROR, () => { })
   }
@@ -133,26 +133,27 @@ const scanForWallets = async () => {
 
 const connectToWallet = async () => {
   try {
-    const connection = await scanForWallets();
-    try {
-      await aeSdk.connectToWallet(connection);
+    if (!walletConnected) {
+      const connection = await scanForWallets();
+      try {
+        await aeSdk.connectToWallet(connection);
 
-      const { address: { current } } = await aeSdk.subscribeAddress('subscribe', 'connected')
+        const { address: { current } } = await aeSdk.subscribeAddress('subscribe', 'connected')
 
-      store.dispatch(setProps({
-        att: "address",
-        value: Object.keys(current)[0]
-      }))
-      walletConnected = true;
-    } catch (error) {
-      // @ts-ignore
-      connection.disconnect();
-      aeSdk.rpcClient = null;
-      openNotification("Connect wallet", error.message, MESSAGE_TYPE.ERROR, () => { })
+        store.dispatch(setProps({
+          att: "address",
+          value: Object.keys(current)[0]
+        }))
+        walletConnected = true;
+      } catch (error) {
+        // @ts-ignore
+        connection.disconnect();
+        aeSdk.rpcClient = null;
+        openNotification("Connect wallet", error.message, MESSAGE_TYPE.ERROR, () => { })
+
+      }
 
     }
-
-
   } finally {
     //this.walletConnecting = false;
   }
@@ -196,12 +197,17 @@ const initReadDaoContract = async (daoAddress: string) => {
 
 
 const disconnect = async () => {
-  await aeSdk.disconnectWallet()
-  store.dispatch(setProps({
-    att: "address",
-    value: ""
-  }))
-  walletConnected = false
+  try {
+    await aeSdk.disconnectWallet()
+    store.dispatch(setProps({
+      att: "address",
+      value: ""
+    }))
+    walletConnected = false
+  } catch (e) {
+    console.log(e.message);
+  }
+
 }
 
 const getDaos = async () => {
