@@ -4,6 +4,7 @@ import {
 } from "@reduxjs/toolkit";
 
 export const actionNames = {
+    connectWallet: "connectWallet",
     createDao: "createDao",
     createSubDao: "createSubDao",
     createProposal: "createProposal",
@@ -31,6 +32,9 @@ type Processes = {
 }
 
 const initialState: Processes = {
+    connectWallet: {
+        processing: false
+    },
     createDao: {
         processing: false
     },
