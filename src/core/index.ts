@@ -134,6 +134,11 @@ const scanForWallets = async () => {
 const connectToWallet = async () => {
   try {
     if (!walletConnected) {
+      store.dispatch(updateProcessStatus({
+        actionName: actionNames.connectWallet,
+        att: processKeys.processing,
+        value: true
+      }))
       const connection = await scanForWallets();
       try {
         await aeSdk.connectToWallet(connection);
@@ -155,7 +160,11 @@ const connectToWallet = async () => {
 
     }
   } finally {
-    //this.walletConnecting = false;
+    store.dispatch(updateProcessStatus({
+      actionName: actionNames.connectWallet,
+      att: processKeys.processing,
+      value: false
+    }))
   }
 }
 const convertCtToAk = (address: string) => {

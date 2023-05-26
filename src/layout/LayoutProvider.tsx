@@ -91,7 +91,7 @@ export const LayoutProvider = (props: Props) => {
                             //@ts-ignore
                             icon: <TwitterOutlined />,
                             label: 'Twitter',
-                            onClick: () => {}
+                            onClick: () => window.open("https://twitter.com/dpaya2n", "_blank")
                         },
                         // {
                         //     key: '7',

@@ -11,7 +11,7 @@ export const SubDaos = () => {
         getSubDaosOf()
     }, [currentDaoAddress])
     return (
-        <Row>
+        <Row gutter={8}>
             {
                 subDaos.map((dao, index) => {
                     return <Col key={`sub-dao-${index}`} xs={24} sm={24} md={12} lg={8} xl={8} xxl={6}>
