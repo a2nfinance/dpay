@@ -1,14 +1,15 @@
-import { Button, Col, Divider, Drawer, Input, Popover, Row, Space, Statistic } from 'antd';
+import { Button, Col, Divider, Drawer, Dropdown, Input, MenuProps, Popover, Row, Space, Statistic } from 'antd';
 import { AE_AMOUNT_FORMATS, formatAmount } from "@aeternity/aepp-sdk";
 import { useCallback, useState } from 'react';
 import { NewProposal } from 'src/components/proposal/NewProposal';
 import { fundDao, addMember as addMemberAction } from 'src/core';
 import { NewSubDao } from '../NewSubDao';
 import { useAppSelector } from 'src/controller/hooks';
+import { DownOutlined, UserOutlined } from '@ant-design/icons';
 
 export const DaoStatistic = () => {
   const { simpleData } = useAppSelector(state => state.daoDetail);
-  const {addFund, addMember} = useAppSelector(state => state.process);
+  const { addFund, addMember } = useAppSelector(state => state.process);
 
   const [fundAmount, setFundAmount] = useState("");
   const [newMember, setNewMember] = useState("");
@@ -50,7 +51,7 @@ export const DaoStatistic = () => {
   const onCloseSubDao = () => {
     setOpenSubDao(false);
   };
-  
+
   const fund = useCallback(() => {
     fundDao(parseFloat(fundAmount));
   }, [fundAmount])
@@ -60,16 +61,40 @@ export const DaoStatistic = () => {
     addMemberAction(newMember);
   }, [newMember])
 
+
+  const items: MenuProps['items'] = [
+    {
+      label: 'Payout',
+      key: '1',
+      //icon: <UserOutlined />,
+    },
+    {
+      label: 'Vesting',
+      key: '2',
+      //icon: <UserOutlined />,
+    },
+    {
+      label: 'Governance',
+      key: '3',
+      // icon: <UserOutlined />,
+      danger: true,
+    }
+  ];
+
+  const menuProps = {
+    items,
+    onClick: () => { },
+  };
   return (
     <Row gutter={8}>
       <Col span={3}>
-        <Statistic title="Members" value={simpleData.members_length}  />
+        <Statistic title="Members" value={simpleData.members_length} />
       </Col>
       <Col span={3}>
-        <Statistic title="Proposals" value={simpleData.proposals_length}/>
+        <Statistic title="Proposals" value={simpleData.proposals_length} />
       </Col>
       <Col span={3}>
-        <Statistic title="Treasury (AE)" value={formatAmount(simpleData.balance, { targetDenomination: AE_AMOUNT_FORMATS.AE })} precision={3}  />
+        <Statistic title="Treasury (AE)" value={formatAmount(simpleData.balance, { targetDenomination: AE_AMOUNT_FORMATS.AE })} precision={3} />
       </Col>
       <Col span={3}>
         <p>Status</p>
@@ -79,11 +104,19 @@ export const DaoStatistic = () => {
         <p>Actions</p>
         <Space direction="horizontal">
           <Button onClick={showDrawerSubDao} type="primary" ghost>New SubDao</Button>
-          <Button onClick={showDrawer} type="primary" ghost>New Proposal</Button>
+          {/* <Button onClick={showDrawer} type="primary" ghost>New Proposal</Button> */}
+          <Dropdown menu={menuProps}>
+            <Button type="primary" ghost>
+              <Space>
+                New Proposal
+                <DownOutlined />
+              </Space>
+            </Button>
+          </Dropdown>
           <Popover
             content={
               <>
-                <Input name='adress' value={newMember} onChange={(e) => setNewMember(e.target.value)}/>
+                <Input name='adress' value={newMember} onChange={(e) => setNewMember(e.target.value)} />
                 <Divider />
                 <Button type='primary' onClick={() => doAddMember()} loading={addMember.processing}>Add</Button>
               </>
@@ -100,7 +133,7 @@ export const DaoStatistic = () => {
           <Popover
             content={
               <>
-                
+
                 <Input name='amount' type='number' value={fundAmount} onChange={(e) => setFundAmount(e.target.value)} />
                 <Divider />
                 <Button type='primary' onClick={() => fund()} loading={addFund.processing}>Send</Button>
